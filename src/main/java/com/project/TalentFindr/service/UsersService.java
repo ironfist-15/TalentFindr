@@ -30,7 +30,7 @@ public class UsersService {
     }
 
     public Optional<Users> getuserbyEmailid(String email){
-        return usersRepository.findbyEmail(email);
+        return usersRepository.findByEmail(email);
     }
 
 }

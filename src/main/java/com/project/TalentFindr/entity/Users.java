@@ -110,4 +110,5 @@ public class Users {
                 ", userTypeId=" + userTypeId +
                 '}';
     }
+
 }
