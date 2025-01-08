@@ -13,6 +13,7 @@ import com.project.TalentFindr.entity.RecruiterProfile;
 import com.project.TalentFindr.entity.Users;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,17 +23,19 @@ public class UsersService {
     public UsersRepository usersRepository;
     public RecruiterProfileRepository recruiterProfileRepository;
     public JobSeekerRepository jobSeekerRepository;
+    public PasswordEncoder passwordEncoder;
 
-
-    public UsersService(UsersRepository usersRepository, RecruiterProfileRepository recruiterProfileRepository, JobSeekerRepository jobSeekerRepository) {
+    public UsersService(UsersRepository usersRepository, RecruiterProfileRepository recruiterProfileRepository, JobSeekerRepository jobSeekerRepository, PasswordEncoder passwordEncoder) {
         this.usersRepository = usersRepository;
         this.recruiterProfileRepository = recruiterProfileRepository;
         this.jobSeekerRepository = jobSeekerRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Users addUser(Users user){
         user.setActive(true);
         user.setRegistrationDate(LocalDateTime.now());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Users saveduser=usersRepository.save(user);
         int saveduserid= user.getUserTypeId().getUserTypeId();
         if(saveduserid==1){
