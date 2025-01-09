@@ -13,6 +13,12 @@ import com.project.TalentFindr.entity.RecruiterProfile;
 import com.project.TalentFindr.entity.Users;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.SecurityContext;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,4 +58,21 @@ public class UsersService {
         return usersRepository.findByEmail(email);
     }
 
+    public Object getCurrentUserProfile() {
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+
+        if(!(authentication instanceof AnonymousAuthenticationToken)){
+            String userName= authentication.getName();
+            Users users=usersRepository.findByEmail(userName).orElseThrow(()->new UsernameNotFoundException("couldn't find you"));
+            int userId=users.getUserId();
+            if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))){
+                RecruiterProfile recruiterProfile=recruiterProfileRepository.findById(userId).orElse(new RecruiterProfile());
+                return recruiterProfile;
+            }
+            else{
+                return jobSeekerRepository.findById(userId).orElse(new JobSeekerProfile());
+            }
+        }
+        return null;
+    }
 }
