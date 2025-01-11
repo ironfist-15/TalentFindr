@@ -57,6 +57,6 @@ public class UsersController {
 
 
         usersService.addUser(user);
-        return "dashboard";
+        return "redirect:/dashboard/";
     }
 }

@@ -66,8 +66,7 @@ public class UsersService {
             Users users=usersRepository.findByEmail(userName).orElseThrow(()->new UsernameNotFoundException("couldn't find you"));
             int userId=users.getUserId();
             if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))){
-                RecruiterProfile recruiterProfile=recruiterProfileRepository.findById(userId).orElse(new RecruiterProfile());
-                return recruiterProfile;
+                return recruiterProfileRepository.findById(userId).orElse(new RecruiterProfile());
             }
             else{
                 return jobSeekerRepository.findById(userId).orElse(new JobSeekerProfile());

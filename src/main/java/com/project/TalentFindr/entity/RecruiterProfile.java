@@ -2,15 +2,7 @@ package com.project.TalentFindr.entity;
 
 
 
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Id;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table ;
-import jakarta.persistence.Entity;
-
-import jakarta.persistence.Column;
-
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 
 
 @Entity
@@ -46,6 +38,8 @@ public class RecruiterProfile {
     public RecruiterProfile(Users userId) {
         this.userId = userId;
     }
+
+
 
 
     // i have used builder class because too many parameters(9) in constructor
@@ -188,6 +182,13 @@ public class RecruiterProfile {
 
     public void setProfilePhoto(String profilePhoto) {
         this.profilePhoto = profilePhoto;
+    }
+
+    @Transient
+    public String getPhotosImagePath(){
+        if(profilePhoto==null)return null;
+        return "/photos/recruiter/"+userAccountId+"/"+profilePhoto;
+
     }
 
     public String getState() {
