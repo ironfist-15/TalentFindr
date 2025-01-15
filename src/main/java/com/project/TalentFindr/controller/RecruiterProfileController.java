@@ -70,7 +70,7 @@ public class RecruiterProfileController {
                 recruiterProfile.setProfilePhoto(fileName);
             }
             RecruiterProfile savedUser=recruiterProfileService.addNew(recruiterProfile);
-            String uploadDir="/photos/recruiter/"+savedUser.getUserAccountId();
+            String uploadDir="D:/desktop2.0/jobportal/uploaded-files/photos/recruiter/"+savedUser.getUserAccountId();
             try{
                 FileUploadUtil.saveFile(uploadDir,fileName,multipartFile);
             } catch (Exception ex){
