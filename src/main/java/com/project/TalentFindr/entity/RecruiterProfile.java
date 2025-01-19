@@ -45,15 +45,15 @@ public class RecruiterProfile {
     // i have used builder class because too many parameters(9) in constructor
 
     public RecruiterProfile(Builder builder) {
-        this.userAccountId = builder.userAccountId;
-        this.userId = builder.userId;
-        this.city = builder.city;
-        this.country = builder.country;
-        this.company = builder.company;
-        this.firstName = builder.firstName;
-        this.lastName = builder.lastName;
-        this.profilePhoto = builder.profilePhoto;
-        this.state = builder.state;
+        userAccountId = builder.userAccountId;
+        userId = builder.userId;
+        city = builder.city;
+        country = builder.country;
+        company = builder.company;
+        firstName = builder.firstName;
+        lastName = builder.lastName;
+        profilePhoto = builder.profilePhoto;
+        state = builder.state;
     }
 
 
