@@ -3,10 +3,15 @@ package com.project.TalentFindr.controller;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import com.project.TalentFindr.entity.JobPostActivity;
+import com.project.TalentFindr.entity.RecruiterJobsDto;
+import com.project.TalentFindr.entity.RecruiterProfile;
 import com.project.TalentFindr.entity.Users;
 import com.project.TalentFindr.service.JobPostActivityService;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.ui.Model;
 import com.project.TalentFindr.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -39,6 +45,10 @@ public class JobPostActivityController {
         if(!(authentication instanceof AnonymousAuthenticationToken)){    //just checking if the user is not an anonymous one
             String currentUserName=authentication.getName();
             model.addAttribute("username",currentUserName);
+            if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))){
+                List<RecruiterJobsDto> recruiterJobs=jobPostActivityService.getRecruiterJobs(((RecruiterProfile)currentUserProfile).getUserAccountId());
+                model.addAttribute("jobPost",recruiterJobs);
+            }
         }
         model.addAttribute("user",currentUserProfile);
         return "dashboard";
@@ -62,6 +72,15 @@ public class JobPostActivityController {
 
          jobPostActivityService.add(jobPostActivity);
          return "redirect:/dashboard/";
+    }
+
+    @GetMapping("/dashboard/edit/{id}")
+    public String editJob(@PathVariable("id") Integer id,Model model){
+
+        Optional<JobPostActivity> jobPostActivity=jobPostActivityService.addOne(id);
+        model.addAttribute("jobPostActivity",jobPostActivity);
+        model.addAttribute("user",usersService.getCurrentUserProfile());
+        return "add-jobs";
     }
 
 }
