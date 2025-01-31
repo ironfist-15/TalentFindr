@@ -77,6 +77,6 @@ public class RecruiterProfileController {
                 ex.printStackTrace();
             }
             return "redirect:/dashboard/";
-        }
+    }
 
 }

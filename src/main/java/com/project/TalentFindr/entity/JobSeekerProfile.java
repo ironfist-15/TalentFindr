@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 public class JobSeekerProfile {
 
     @Id
-    private int userAccountId;
+    private Integer userAccountId;
 
     @OneToOne
     @JoinColumn(name="user_account_id")
@@ -57,7 +57,7 @@ public class JobSeekerProfile {
 
 
     public static class Builder {
-        private int userAccountId;
+        private Integer userAccountId;
         private Users userId;
         private String firstName;
         private String lastName;
@@ -70,7 +70,7 @@ public class JobSeekerProfile {
         private String employmentType;
         private List<Skills> skills;
 
-        public Builder setUserAccountId(int userAccountId) {
+        public Builder setUserAccountId(Integer userAccountId) {
             this.userAccountId = userAccountId;
             return this;
         }
@@ -135,11 +135,11 @@ public class JobSeekerProfile {
         }
     }
 
-    public int getUserAccountId() {
+    public Integer getUserAccountId() {
         return userAccountId;
     }
 
-    public void setUserAccountId(int userAccountId) {
+    public void setUserAccountId(Integer userAccountId) {
         this.userAccountId = userAccountId;
     }
 
@@ -231,6 +231,14 @@ public class JobSeekerProfile {
         this.skills = skills;
     }
 
+    public String getPhotosImagePath(){
+        if(profilePhoto==null||userAccountId==null){
+            return null;
+        }
+        return "/photos/candidate/"+userAccountId+"/"+profilePhoto;
+
+    }
+
     @Override
     public String toString() {
         return "JobSeekerProfile{" +
@@ -245,7 +253,6 @@ public class JobSeekerProfile {
                 ", resume='" + resume + '\'' +
                 ", profilePhoto='" + profilePhoto + '\'' +
                 ", employmentType='" + employmentType + '\'' +
-                ", skills=" + skills +
                 '}';
     }
 }
