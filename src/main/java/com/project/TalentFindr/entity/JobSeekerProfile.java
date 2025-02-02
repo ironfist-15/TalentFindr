@@ -231,12 +231,13 @@ public class JobSeekerProfile {
         this.skills = skills;
     }
 
+
+    @Transient
     public String getPhotosImagePath(){
-        if(profilePhoto==null||userAccountId==null){
+        if(profilePhoto==null||userAccountId==null) {
             return null;
         }
-        return "/photos/candidate/"+userAccountId+"/"+profilePhoto;
-
+        return "D:/desktop2.0/jobportal/uploaded-files/photos/candidate/"+userAccountId+profilePhoto;
     }
 
     @Override
