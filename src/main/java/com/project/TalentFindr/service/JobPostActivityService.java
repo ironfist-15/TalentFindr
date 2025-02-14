@@ -1,8 +1,10 @@
 package com.project.TalentFindr.service;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.project.TalentFindr.Repository.JobPostActivityRepository;
@@ -40,4 +42,14 @@ public class JobPostActivityService {
         return jobPostActivityRepository.findById(id);
     }
 
+    public List<JobPostActivity> search(String job, String location, List<String> remote, List<String> type, LocalDateTime searchDate) {
+        if(Objects.isNull(searchDate)){
+            return jobPostActivityRepository.searchWithoutDate(job,location,remote,type);
+        }
+        return jobPostActivityRepository.search(job,location,remote,type,searchDate);
+    }
+
+    public List<JobPostActivity> getAll() {
+        return jobPostActivityRepository.findAll();
+    }
 }
