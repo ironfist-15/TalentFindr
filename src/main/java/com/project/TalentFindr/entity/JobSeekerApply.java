@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Entity
 @Table(uniqueConstraints =
         @UniqueConstraint(columnNames = {"userId","job"})
-)
+                                                )
 public class JobSeekerApply {
 
     @Id

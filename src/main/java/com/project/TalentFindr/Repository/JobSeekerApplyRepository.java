@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JobSeekerApplyRepository extends JpaRepository<JobSeekerApply,Integer> {
 
-       List<JobSeekerApply> findUserId(JobSeekerProfile userId);
+       List<JobSeekerApply> findByUserId(JobSeekerProfile userId);
 
        List<JobSeekerApply> findByJob(JobPostActivity job);
 }
