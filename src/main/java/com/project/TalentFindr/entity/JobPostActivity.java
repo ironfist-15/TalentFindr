@@ -186,7 +186,7 @@ public class JobPostActivity {
         this.descriptionOfJob = descriptionOfJob;
     }
 
-    public Boolean getActive() {
+    public Boolean isActive() {
         return isActive;
     }
 
@@ -194,7 +194,7 @@ public class JobPostActivity {
         isActive = active;
     }
 
-    public Boolean getSaved() {
+    public Boolean isSaved() {
         return isSaved;
     }
 

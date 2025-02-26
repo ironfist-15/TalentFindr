@@ -21,6 +21,11 @@ public class RecruiterProfileService {
     public RecruiterProfileRepository recruiterProfileRepository;
     public UsersRepository usersRepository;
 
+    public RecruiterProfileService(RecruiterProfileRepository recruiterProfileRepository, UsersRepository usersRepository) {
+        this.recruiterProfileRepository = recruiterProfileRepository;
+        this.usersRepository = usersRepository;
+    }
+
     public Optional<RecruiterProfile> getOne(Integer id){
            return recruiterProfileRepository.findById(id);
     }

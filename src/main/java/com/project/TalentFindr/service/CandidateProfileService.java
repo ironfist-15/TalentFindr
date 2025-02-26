@@ -44,7 +44,7 @@ public class CandidateProfileService {
         }
     }
 
-    public Optional<JobSeekerProfile> getOne(int userId) {
+    public  Optional<JobSeekerProfile> getOne(int userId) {
         return candidateProfileRepository.findById(userId);
     }
 }

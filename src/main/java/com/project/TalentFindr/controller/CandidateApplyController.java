@@ -1,16 +1,13 @@
 package com.project.TalentFindr.controller;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import com.project.TalentFindr.Repository.JobPostActivityRepository;
 import com.project.TalentFindr.Repository.UsersRepository;
 import com.project.TalentFindr.entity.*;
 import com.project.TalentFindr.service.*;
-import org.hibernate.grammars.hql.HqlParser;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
-public class CandidateController {
+public class CandidateApplyController {
 
     public JobPostActivityService jobPostActivityService;
     public UsersService usersService;
@@ -33,7 +30,7 @@ public class CandidateController {
     public CandidateProfileService candidateProfileService;
     public UsersRepository usersRepository;
 
-    public CandidateController(JobPostActivityService jobPostActivityService, UsersService usersService, JobPostActivityRepository jobPostActivityRepository, JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService, RecruiterProfileService recruiterProfileService, CandidateProfileService candidateProfileService, UsersRepository usersRepository) {
+    public CandidateApplyController(JobPostActivityService jobPostActivityService, UsersService usersService, JobPostActivityRepository jobPostActivityRepository, JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService, RecruiterProfileService recruiterProfileService, CandidateProfileService candidateProfileService, UsersRepository usersRepository) {
         this.jobPostActivityService = jobPostActivityService;
         this.usersService = usersService;
         this.jobPostActivityRepository = jobPostActivityRepository;
@@ -89,24 +86,28 @@ public class CandidateController {
         return "job-details";
     }
 
-    @PostMapping("job-details/apply/{Id}")
-    public String apply(@PathVariable("Id") int id,JobSeekerApply jobSeekerApply){
-       Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
-       if (!(authentication instanceof AnonymousAuthenticationToken)) {
-           String userName = authentication.getName();
-           Optional<Users> user= usersRepository.findByEmail(userName);
-           Optional<JobSeekerProfile> seekerProfile=candidateProfileService.getOne(user.get().getUserId());
-           JobPostActivity jobPostActivity=jobPostActivityService.getOne(id);
-           if(seekerProfile.isPresent()&&jobPostActivity!=null){
-               jobSeekerApply = new JobSeekerApply();
-               jobSeekerApply.setUserId(seekerProfile.get());
-               jobSeekerApply.setJob(jobPostActivity);
-               jobSeekerApply.setApplyDate(LocalDateTime.now());
-           }else{
-               throw new RuntimeException("user not found");
-           }
-           jobSeekerApplyService.addNew(jobSeekerApply);
-       }
-       return "dashboard";
+   @PostMapping("job-details/apply/{id}")
+    public String apply(@PathVariable("id") int id, JobSeekerApply jobSeekerApply) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String currentUsername = authentication.getName();
+            Users user = usersService.findByEmail(currentUsername);
+            Optional<JobSeekerProfile> seekerProfile = candidateProfileService.getOne(user.getUserId());
+            JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
+            if (seekerProfile.isPresent() && jobPostActivity != null) {
+                jobSeekerApply = new JobSeekerApply();
+                jobSeekerApply.setUserId(seekerProfile.get());
+                jobSeekerApply.setJob(jobPostActivity);
+                jobSeekerApply.setApplyDate(LocalDateTime.now());
+            } else {
+                throw new RuntimeException("User not found");
+            }
+            jobSeekerApplyService.addNew(jobSeekerApply);
+        }
+
+        return "redirect:/dashboard/";
     }
+
+
+
 }
