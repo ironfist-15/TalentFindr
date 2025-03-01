@@ -52,98 +52,19 @@ public class JobPostActivity {
     public JobPostActivity() {
     }
 
-   public JobPostActivity(Builder builder) {
-        jobPostId = builder.jobPostId;
-        postedById = builder.postedById;
-        jobLocationId = builder.jobLocationId;
-        jobCompanyId = builder.jobCompanyId;
-        descriptionOfJob = builder.descriptionOfJob;
-        isActive = builder.isActive;
-        isSaved = builder.isSaved;
-        jobType = builder.jobType;
-        salary = builder.salary;
-        remote = builder.remote;
-        postedDate = builder.postedDate;
-        jobTitle = builder.jobTitle;
-    }
-
-    public static class Builder {
-        private Integer jobPostId;
-        private Users postedById;
-        private JobLocation jobLocationId;
-        private JobCompany jobCompanyId;
-        private String descriptionOfJob;
-        private Boolean isActive;
-        private Boolean isSaved;
-        private String jobType;
-        private String salary;
-        private String remote;
-        private LocalDateTime postedDate;
-        private String jobTitle;
-
-        public Builder setJobPostId(Integer jobPostId) {
-            this.jobPostId = jobPostId;
-            return this;
-        }
-
-        public Builder setPostedById(Users postedById) {
-            this.postedById = postedById;
-            return this;
-        }
-
-        public Builder setJobLocationId(JobLocation jobLocationId) {
-            this.jobLocationId = jobLocationId;
-            return this;
-        }
-
-        public Builder setJobCompanyId(JobCompany jobCompanyId) {
-            this.jobCompanyId = jobCompanyId;
-            return this;
-        }
-
-        public Builder setDescriptionOfJob(String descriptionOfJob) {
-            this.descriptionOfJob = descriptionOfJob;
-            return this;
-        }
-
-        public Builder setIsActive(Boolean isActive) {
-            this.isActive = isActive;
-            return this;
-        }
-
-        public Builder setIsSaved(Boolean isSaved) {
-            this.isSaved = isSaved;
-            return this;
-        }
-
-        public Builder setJobType(String jobType) {
-            this.jobType = jobType;
-            return this;
-        }
-
-        public Builder setSalary(String salary) {
-            this.salary = salary;
-            return this;
-        }
-
-        public Builder setRemote(String remote) {
-            this.remote = remote;
-            return this;
-        }
-
-        public Builder setPostedDate(LocalDateTime postedDate) {
-            this.postedDate = postedDate;
-            return this;
-        }
-
-        public Builder setJobTitle(String jobTitle) {
-            this.jobTitle = jobTitle;
-            return this;
-        }
-
-        public JobPostActivity build() {
-            return new JobPostActivity(this);
-        }
+    public JobPostActivity(Integer jobPostId, Users postedById, JobLocation jobLocationId, JobCompany jobCompanyId, String descriptionOfJob, Boolean isActive, Boolean isSaved, String jobType, String salary, String remote, LocalDateTime postedDate, String jobTitle) {
+        this.jobPostId = jobPostId;
+        this.postedById = postedById;
+        this.jobLocationId = jobLocationId;
+        this.jobCompanyId = jobCompanyId;
+        this.descriptionOfJob = descriptionOfJob;
+        this.isActive = isActive;
+        this.isSaved = isSaved;
+        this.jobType = jobType;
+        this.salary = salary;
+        this.remote = remote;
+        this.postedDate = postedDate;
+        this.jobTitle = jobTitle;
     }
 
     public Integer getJobPostId() {
@@ -186,19 +107,19 @@ public class JobPostActivity {
         this.descriptionOfJob = descriptionOfJob;
     }
 
-    public Boolean isActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setActive(Boolean active) {
+    public void setIsActive(Boolean active) {
         isActive = active;
     }
 
-    public Boolean isSaved() {
+    public Boolean getIsSaved() {
         return isSaved;
     }
 
-    public void setSaved(Boolean saved) {
+    public void setIsSaved(Boolean saved) {
         isSaved = saved;
     }
 
@@ -245,7 +166,7 @@ public class JobPostActivity {
     @Override
     public String toString() {
         return "JobPostActivity{" +
-                "joPostId=" + jobPostId +
+                "jobPostId=" + jobPostId +
                 ", postedById=" + postedById +
                 ", jobLocationId=" + jobLocationId +
                 ", jobCompanyId=" + jobCompanyId +

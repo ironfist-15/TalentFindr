@@ -96,7 +96,7 @@
                                     <span class="title-span" sec:authorize="hasAuthority('Recruiter')"
                                           th:text="'('+ @{${jobPost.totalCandidates}}+' Candidates Applied)'">(xx candidates applied)</span>
                                     <span class="title-span" sec:authorize="hasAuthority('Job Seeker')"
-                                          th:if="${jobPost.isActive == true}">(Applied)</span>
+                                          th:if="${jobPost.isActive ?: false}">(Applied)</span>
 
                                 </label>
                             </div>

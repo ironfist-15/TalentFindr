@@ -7,13 +7,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.luv2code.jobportal.util.FileUploadUtil;
 import com.project.TalentFindr.Repository.UsersRepository;
 import com.project.TalentFindr.entity.JobSeekerProfile;
 import com.project.TalentFindr.entity.Skills;
 import com.project.TalentFindr.entity.Users;
 import com.project.TalentFindr.service.CandidateProfileService;
-import com.project.TalentFindr.util.FileUploadUtil;
+import com.project.TalentFindr.util.FileDownloadUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -62,6 +68,7 @@ public class CandidateProfileController {
     @PostMapping("/addNew")
     public String addNew(Model model, JobSeekerProfile jobSeekerProfile, @RequestParam("image")MultipartFile image,@RequestParam("pdf")MultipartFile pdf) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        FileUploadUtil fileUploadUtil=new FileUploadUtil();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             Users user = usersRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("couldn't find user"));
             jobSeekerProfile.setUserId(user);
@@ -89,10 +96,10 @@ public class CandidateProfileController {
             try{
                 String uploadDir="D:/desktop2.0/jobportal/uploaded-files/photos/candidate/"+jobSeekerProfile.getUserAccountId();
                 if(!Objects.equals(image.getOriginalFilename(),"")){
-                    FileUploadUtil.saveFile(uploadDir,imageName,image);
+                    fileUploadUtil.saveFile(uploadDir,imageName,image);
                 }
                 if(!Objects.equals(pdf.getOriginalFilename(),"")){
-                    FileUploadUtil.saveFile(uploadDir,resume,pdf);
+                    fileUploadUtil.saveFile(uploadDir,resume,pdf);
                 }
 
 
@@ -114,8 +121,31 @@ public class CandidateProfileController {
     }
 
     @GetMapping("/downloadResume")
-    public ResponseEntity<?> downloadResume(@RequestParam(value = "fileName") String fileName,@RequestParam(value = "userId") String userId){
-        
+    public ResponseEntity<?> downloadResume(@RequestParam(value = "fileName") String fileName,@RequestParam(value = "userID") String userId){
+
+
+        FileDownloadUtil downloadUtil = new FileDownloadUtil();
+        Resource resource = null;
+
+        try {
+            resource = downloadUtil.getFileAsResource("photos/candidate/" + userId, fileName);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (resource == null) {
+            return new ResponseEntity<>("File not found", HttpStatus.NOT_FOUND);
+        }
+
+        String contentType = "application/octet-stream";
+        String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                .body(resource);
+
+
     }
 
 }

@@ -1,6 +1,5 @@
 package com.project.TalentFindr.util;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,9 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class CustomUserDetails implements UserDetails {
 
 
-    @Serial
-    private static final long serialVersionUID = 3518914414416100768L;
-    private final Users users;
+    private  Users users;
 
 
     public CustomUserDetails(Users users) {

@@ -9,7 +9,7 @@ import com.project.TalentFindr.Repository.UsersRepository;
 import com.project.TalentFindr.entity.RecruiterProfile;
 import com.project.TalentFindr.entity.Users;
 import com.project.TalentFindr.service.RecruiterProfileService;
-import com.project.TalentFindr.util.FileUploadUtil;
+import com.luv2code.jobportal.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -57,6 +57,7 @@ public class RecruiterProfileController {
     @PostMapping("/addNew")
     public String addNew(RecruiterProfile recruiterProfile,@RequestParam("image") MultipartFile multipartFile,Model model){
                 Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+                 FileUploadUtil fileUploadUtil=new FileUploadUtil();
         if(!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUsername = authentication.getName();
             Users users = usersRepository.findByEmail(currentUsername).orElseThrow(() -> new UsernameNotFoundException("Could not find" + "find user"));
@@ -72,7 +73,7 @@ public class RecruiterProfileController {
             RecruiterProfile savedUser=recruiterProfileService.addNew(recruiterProfile);
             String uploadDir="D:/desktop2.0/jobportal/uploaded-files/photos/recruiter/"+savedUser.getUserAccountId();
             try{
-                FileUploadUtil.saveFile(uploadDir,fileName,multipartFile);
+                fileUploadUtil.saveFile(uploadDir,fileName,multipartFile);
             } catch (Exception ex){
                 ex.printStackTrace();
             }
