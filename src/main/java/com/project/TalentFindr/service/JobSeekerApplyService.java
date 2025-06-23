@@ -21,7 +21,7 @@ public class JobSeekerApplyService {
         this.jobSeekerApplyRepository = jobSeekerApplyRepository;
     }
 
-    public List<JobSeekerApply> getCandidatesJob(JobSeekerProfile userAccountId){
+    public List<JobSeekerApply> getCandidatesJobs(JobSeekerProfile userAccountId){
         return jobSeekerApplyRepository.findByUserId(userAccountId);
     }
 

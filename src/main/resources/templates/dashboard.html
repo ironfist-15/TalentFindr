@@ -73,11 +73,11 @@
         </ul>
 
         <img
-                class="rounded-circle me-3"
-                height="50px"
-                width="50x"
-                th:if="${user.photosImagePath!=null}"
-                th:src="@{${user?.photosImagePath}}"
+            class="rounded-circle me-3"
+            height="50px"
+            width="50px"
+            th:if="${user.profilePhotoUrl != null}"
+            th:src="@{${user.profilePhotoUrl}}"
         />
 
 
@@ -283,7 +283,7 @@
                                     <span
                                             class="title-span"
                                             sec:authorize="hasAuthority('Job Seeker')"
-                                            th:if="${jobPost.isActive ?: false}"
+                                            th:if="${jobPost.isSaved == true}"
                                     >(Saved)</span
                                     >
                                 </label>

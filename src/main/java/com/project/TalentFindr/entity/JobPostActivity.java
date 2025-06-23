@@ -10,7 +10,6 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
-@Table(name="job_post_activity")
 public class JobPostActivity {
 
     @Id

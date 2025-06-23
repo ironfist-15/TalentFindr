@@ -191,6 +191,12 @@ public class RecruiterProfile {
 
     }
 
+    @Transient
+    public String getProfilePhotoUrl() {
+        if (profilePhoto == null || userAccountId == 0) return null;
+        return "/files/photos/recruiter/" + userAccountId + "/" + profilePhoto;
+    }
+
     public String getState() {
         return state;
     }

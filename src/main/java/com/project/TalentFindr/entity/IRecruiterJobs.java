@@ -8,7 +8,7 @@ public interface IRecruiterJobs {
 
     String getJob_title();
 
-    Integer getLocation_id();
+    Integer getLocationId();
 
     String getCity();
 

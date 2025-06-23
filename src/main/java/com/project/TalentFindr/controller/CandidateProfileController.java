@@ -106,9 +106,6 @@ public class CandidateProfileController {
             } catch (IOException ex){
                 throw new RuntimeException();
             }
-
-
-
         return "redirect:/dashboard/";
     }
 

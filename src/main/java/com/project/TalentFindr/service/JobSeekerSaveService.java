@@ -20,7 +20,7 @@ public class JobSeekerSaveService {
         this.jobSeekerSaveRepository = jobSeekerSaveRepository;
     }
 
-    public List<JobSeekerSave> getCandidatesJobs(JobSeekerProfile userAccountId){
+    public List<JobSeekerSave> getCandidatesJob(JobSeekerProfile userAccountId){
         return  jobSeekerSaveRepository.findByUserId(userAccountId);
     }
 

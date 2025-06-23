@@ -30,10 +30,11 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             + " OR l.country LIKE %:location%"
             + " OR l.state LIKE %:location%) " +
             " AND (j.job_type IN(:type)) " +
-            " AND (j.remote IN(:remote)) " +
-            " AND (posted_date >= :date)", nativeQuery = true)
-    List<JobPostActivity> search(@Param("job") String job,@Param("location") String location,@Param("remote") List<String> remote,@Param("type") List<String> type,@Param("date") LocalDateTime date);
-
+            " AND (j.remote IN(:remote)) ", nativeQuery = true)
+    List<JobPostActivity> searchWithoutDate(@Param("job") String job,
+                                            @Param("location") String location,
+                                            @Param("remote") List<String> remote,
+                                            @Param("type") List<String> type);
 
     @Query(value = "SELECT * FROM job_post_activity j INNER JOIN job_location l on j.job_location_id=l.id  WHERE j" +
             ".job_title LIKE %:job%"
@@ -41,6 +42,11 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             + " OR l.country LIKE %:location%"
             + " OR l.state LIKE %:location%) " +
             " AND (j.job_type IN(:type)) " +
-            " AND (j.remote IN(:remote)) ", nativeQuery = true)
-    List<JobPostActivity> searchWithoutDate(@Param("job") String job,@Param("location") String location,@Param("remote") List<String> remote,@Param("type") List<String> type);
+            " AND (j.remote IN(:remote)) " +
+            " AND (posted_date >= :date)", nativeQuery = true)
+    List<JobPostActivity> search(@Param("job") String job,
+                                 @Param("location") String location,
+                                 @Param("remote") List<String> remote,
+                                 @Param("type") List<String> type,
+                                 @Param("date") LocalDateTime searchDate);
 }

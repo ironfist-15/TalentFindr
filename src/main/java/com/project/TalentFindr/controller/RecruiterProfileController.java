@@ -55,29 +55,43 @@ public class RecruiterProfileController {
     }
 
     @PostMapping("/addNew")
-    public String addNew(RecruiterProfile recruiterProfile,@RequestParam("image") MultipartFile multipartFile,Model model){
-                Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
-                 FileUploadUtil fileUploadUtil=new FileUploadUtil();
-        if(!(authentication instanceof AnonymousAuthenticationToken)) {
+    public String addNew(RecruiterProfile recruiterProfile,
+                         @RequestParam("image") MultipartFile multipartFile,
+                         Model model) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        FileUploadUtil fileUploadUtil = new FileUploadUtil();
+
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUsername = authentication.getName();
-            Users users = usersRepository.findByEmail(currentUsername).orElseThrow(() -> new UsernameNotFoundException("Could not find" + "find user"));
+            Users users = usersRepository.findByEmail(currentUsername)
+                    .orElseThrow(() -> new UsernameNotFoundException("Could not find user"));
+
             recruiterProfile.setUserId(users);
             recruiterProfile.setUserAccountId(users.getUserId());
-          }
-        model.addAttribute("profile",recruiterProfile);
-            String fileName="";
-            if(!"".equals(multipartFile.getOriginalFilename())){
-                fileName= StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-                recruiterProfile.setProfilePhoto(fileName);
-            }
-            RecruiterProfile savedUser=recruiterProfileService.addNew(recruiterProfile);
-            String uploadDir="D:/desktop2.0/jobportal/uploaded-files/photos/recruiter/"+savedUser.getUserAccountId();
-            try{
-                fileUploadUtil.saveFile(uploadDir,fileName,multipartFile);
-            } catch (Exception ex){
-                ex.printStackTrace();
-            }
-            return "redirect:/dashboard/";
+        }
+
+        model.addAttribute("profile", recruiterProfile);
+
+        String fileName = "";
+        if (!"".equals(multipartFile.getOriginalFilename())) {
+            fileName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
+            recruiterProfile.setProfilePhoto(fileName); // ✅ Just store filename
+        }
+
+        // Save profile to get ID or ensure persistence
+        RecruiterProfile savedUser = recruiterProfileService.addNew(recruiterProfile);
+
+        // Upload directory
+        String uploadDir = "D:/desktop2.0/jobportal/uploaded-files/photos/recruiter/" + savedUser.getUserAccountId();
+
+        try {
+            fileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return "redirect:/dashboard/";
     }
 
 }

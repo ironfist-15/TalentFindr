@@ -65,7 +65,7 @@ public class JobSeekerSaveController {
         List<JobPostActivity> jobPostActivityList=new ArrayList<>();
         Object currentUserProfile=candidateProfileService.getCurrentSeekerProfile();
 
-        List<JobSeekerSave> jobSeekerSaveList=jobSeekerSaveService.getCandidatesJobs((JobSeekerProfile) currentUserProfile);
+        List<JobSeekerSave> jobSeekerSaveList=jobSeekerSaveService.getCandidatesJob((JobSeekerProfile) currentUserProfile);
         for(JobSeekerSave jobSeekerSave:jobSeekerSaveList){
             jobPostActivityList.add(jobSeekerSave.getJob());
 

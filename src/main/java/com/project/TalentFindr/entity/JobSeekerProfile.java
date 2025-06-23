@@ -234,11 +234,12 @@ public class JobSeekerProfile {
 
     @Transient
     public String getPhotosImagePath(){
-        if(profilePhoto==null||userAccountId==null) {
+        if(profilePhoto==null || userAccountId==null)
             return null;
-        }
-        return "D:/desktop2.0/jobportal/uploaded-files/photos/candidate/"+userAccountId+profilePhoto;
-    }
+        return "/photos/candidate/"+userAccountId+"/"+profilePhoto;
+
+
+}
 
     @Override
     public String toString() {
