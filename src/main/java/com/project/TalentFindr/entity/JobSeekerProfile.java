@@ -237,9 +237,13 @@ public class JobSeekerProfile {
         if(profilePhoto==null || userAccountId==null)
             return null;
         return "/photos/candidate/"+userAccountId+"/"+profilePhoto;
+     }
 
-
-}
+    @Transient
+    public String getProfilePhotoUrl() {
+        if (profilePhoto == null || userAccountId == 0) return null;
+        return "/files/photos/candidate/" + userAccountId + "/" + profilePhoto;
+    }
 
     @Override
     public String toString() {
