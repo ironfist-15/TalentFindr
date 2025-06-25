@@ -128,28 +128,50 @@ public class CandidateProfileController {
         model.addAttribute("profile", jobSeekerProfile);
         model.addAttribute("skills", new ArrayList<Skills>());
 
+        boolean profileSaved = false;
+        JobSeekerProfile savedProfile = null;
+
         // Handle image upload
         if (!image.isEmpty()) {
             String imageName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
             jobSeekerProfile.setProfilePhoto(imageName);
+        }
 
-            // Save profile to DB
-            JobSeekerProfile savedProfile = candidateProfileService.addNew(jobSeekerProfile);
+        // Handle resume upload
+        if (!pdf.isEmpty()) {
+            String resumeName = StringUtils.cleanPath(Objects.requireNonNull(pdf.getOriginalFilename()));
+            jobSeekerProfile.setResume(resumeName);
+        }
 
-            // Save file to disk
-            String uploadDir = "D:/desktop2.0/jobportal/uploaded-files/photos/candidate/" + savedProfile.getUserAccountId();
+        // Save profile (once only, after setting image/resume names)
+        savedProfile = candidateProfileService.addNew(jobSeekerProfile);
+        profileSaved = true;
+
+        // Save image to disk
+        if (!image.isEmpty()) {
+            String imageUploadDir = "D:/desktop2.0/jobportal/uploaded-files/photos/candidate/" + savedProfile.getUserAccountId();
             try {
-                fileUploadUtil.saveFile(uploadDir, imageName, image);
+                fileUploadUtil.saveFile(imageUploadDir, savedProfile.getProfilePhoto(), image);
             } catch (IOException ex) {
                 ex.printStackTrace();
                 throw new RuntimeException("Image upload failed");
             }
-        } else {
-            candidateProfileService.addNew(jobSeekerProfile); // Save even if no image
+        }
+
+        // Save resume to disk
+        if (!pdf.isEmpty()) {
+            String resumeUploadDir = "D:/desktop2.0/jobportal/uploaded-files/resumes/candidate/" + savedProfile.getUserAccountId();
+            try {
+                fileUploadUtil.saveFile(resumeUploadDir, savedProfile.getResume(), pdf);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                throw new RuntimeException("Resume upload failed");
+            }
         }
 
         return "redirect:/dashboard/";
     }
+
 
 
     @GetMapping("/{id}")
@@ -161,31 +183,34 @@ public class CandidateProfileController {
     }
 
     @GetMapping("/downloadResume")
-    public ResponseEntity<?> downloadResume(@RequestParam(value = "fileName") String fileName,@RequestParam(value = "userID") String userId){
-
+    public ResponseEntity<?> downloadResume(@RequestParam("fileName") String fileName,
+                                            @RequestParam("userID") String userId) {
 
         FileDownloadUtil downloadUtil = new FileDownloadUtil();
-        Resource resource = null;
+        Resource resource;
 
         try {
-            resource = downloadUtil.getFileAsResource("photos/candidate/" + userId, fileName);
+
+            String downloadDir = "D:/desktop2.0/jobportal/uploaded-files/resumes/candidate/" + userId;
+
+            System.out.println("Looking for file: " + fileName + " in directory: " + downloadDir);
+
+            resource = downloadUtil.getFileAsResource(downloadDir, fileName);
+
+            if (resource == null || !resource.exists()) {
+                System.out.println("File not found or doesn't exist: " + fileName);
+                return ResponseEntity.status(404).body("Resume not found");
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+
         } catch (IOException e) {
-            return ResponseEntity.badRequest().build();
+            e.printStackTrace(); // 👈 add this
+            return ResponseEntity.badRequest().body("Resume could not be found or accessed.");
         }
-
-        if (resource == null) {
-            return new ResponseEntity<>("File not found", HttpStatus.NOT_FOUND);
-        }
-
-        String contentType = "application/octet-stream";
-        String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
-                .body(resource);
-
-
     }
 
 }

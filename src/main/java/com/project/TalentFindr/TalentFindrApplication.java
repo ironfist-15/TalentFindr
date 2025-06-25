@@ -20,3 +20,7 @@ public class TalentFindrApplication {
 	//change bg
 	// add friends feature
 }
+
+
+//in this code uploadDir says where to upload the photo to , while mvc config helps in routing the http
+//request to the exact loaction on the disk,i.e serve the frontend using this loaction on disk

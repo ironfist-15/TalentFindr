@@ -13,4 +13,6 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/files/**")
                 .addResourceLocations("file:D:/desktop2.0/jobportal/uploaded-files/");
     }
+
+    // anything having a http url like /files should be mapped to url like like D: on the local disk .
 }
