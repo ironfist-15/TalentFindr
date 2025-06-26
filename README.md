@@ -7,7 +7,7 @@ Functionalities of Recruiters:-
 
 Of JobSeekers :-
 1) Create a profile
-2) Apply and save a job .
+2) Apply and save  jobs .
 3) Filter and search for jobs available using date of job posted,location etc .
 4) Upload resume .
 
