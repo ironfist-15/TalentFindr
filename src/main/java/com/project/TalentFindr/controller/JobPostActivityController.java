@@ -5,6 +5,7 @@ package com.project.TalentFindr.controller;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,9 +44,9 @@ public class JobPostActivityController {
         this.jobSeekerSaveService = jobSeekerSaveService;
     }
 
-     @GetMapping("/dashboard/")
-   public String  searchJobs(Model model,
-                             @RequestParam(value = "job",required = false)String job,
+    @GetMapping("/dashboard/")
+    public String searchJobs(Model model,
+                             @RequestParam(value = "job", required = false) String job,
                              @RequestParam(value = "location", required = false) String location,
                              @RequestParam(value = "partTime", required = false) String partTime,
                              @RequestParam(value = "fullTime", required = false) String fullTime,
@@ -53,130 +54,111 @@ public class JobPostActivityController {
                              @RequestParam(value = "remoteOnly", required = false) String remoteOnly,
                              @RequestParam(value = "officeOnly", required = false) String officeOnly,
                              @RequestParam(value = "partialRemote", required = false) String partialRemote,
-                             @RequestParam(value = "today", required = false) boolean today,
-                             @RequestParam(value = "days7", required = false) boolean days7,
-                             @RequestParam(value = "days30", required = false) boolean days30
+                             @RequestParam(value = "today", required = false, defaultValue = "false") boolean today,
+                             @RequestParam(value = "days7", required = false, defaultValue = "false") boolean days7,
+                             @RequestParam(value = "days30", required = false, defaultValue = "false") boolean days30) {
 
-   ){
-        model.addAttribute("partTime", Objects.equals(partTime,"Part-Time"));
-       model.addAttribute("fullTime", Objects.equals(fullTime,"Full-Time"));
-       model.addAttribute("freelance", Objects.equals(freelance,"Freelance"));
+        // Bind form state to view
+        model.addAttribute("partTime", Objects.equals(partTime, "Part-Time"));
+        model.addAttribute("fullTime", Objects.equals(fullTime, "Full-Time"));
+        model.addAttribute("freelance", Objects.equals(freelance, "Freelance"));
+        model.addAttribute("remoteOnly", Objects.equals(remoteOnly, "Remote-Only"));
+        model.addAttribute("officeOnly", Objects.equals(officeOnly, "Office-Only"));
+        model.addAttribute("partialRemote", Objects.equals(partialRemote, "Partial-Remote"));
+        model.addAttribute("today", today);
+        model.addAttribute("days7", days7);
+        model.addAttribute("days30", days30);
+        model.addAttribute("job", job);
+        model.addAttribute("location", location);
 
-       model.addAttribute("remoteOnly", Objects.equals(remoteOnly,"Remote-Only"));
-       model.addAttribute("officeOnly", Objects.equals(officeOnly,"Office-Only"));
-       model.addAttribute("partialRemote", Objects.equals(partialRemote,"Partial-Remote"));
+        // Default fallback
+        job = (job == null || job.trim().isEmpty()) ? "%" : job.trim();
+        location = (location == null || location.trim().isEmpty()) ? "%" : location.trim();
 
-       model.addAttribute("today", today);
-       model.addAttribute("days7", days7);
-       model.addAttribute("days30", days30);
+        // Determine search date
+        LocalDateTime searchDate = null;
+        if (days30) searchDate = LocalDateTime.now().minusDays(30);
+        else if (days7) searchDate = LocalDateTime.now().minusDays(7);
+        else if (today) searchDate = LocalDateTime.now().minusHours(24);
 
-       model.addAttribute("job", job);
-       model.addAttribute("location", location);
+        // Build type list
+        List<String> typeList = new ArrayList<>();
+        if (partTime != null) typeList.add("Part-Time");
+        if (fullTime != null) typeList.add("Full-Time");
+        if (freelance != null) typeList.add("Freelance");
+        if (typeList.isEmpty()) {
+            typeList = List.of("Part-Time", "Full-Time", "Freelance");
+        }
 
-       LocalDateTime searchDate=null;
-       boolean dateSearchFlag=true;
-       boolean remote=true;
-       boolean type=true;
-       if(days30){
-           searchDate=LocalDateTime.now().minusDays(30);
+        // Build remote list
+        List<String> remoteList = new ArrayList<>();
+        if (remoteOnly != null) remoteList.add("Remote-Only");
+        if (officeOnly != null) remoteList.add("Office-Only");
+        if (partialRemote != null) remoteList.add("Partial-Remote");
+        if (remoteList.isEmpty()) {
+            remoteList = List.of("Remote-Only", "Office-Only", "Partial-Remote");
+        }
 
-       } else if (days7) {
-           searchDate=LocalDateTime.now().minusDays(7);
+        // Fetch jobs
+        List<JobPostActivity> jobPost;
+        if (isNoFilter(job, location, searchDate, typeList, remoteList)) {
+            jobPost = jobPostActivityService.getAll();
+        } else {
+            jobPost = jobPostActivityService.search(job, location, remoteList, typeList, searchDate);
+        }
+
+        // Annotate applied/saved
+        Object currentUserProfile = usersService.getCurrentUserProfile();
+        List<JobSeekerApply> applied = jobSeekerApplyService.getCandidatesJobs((JobSeekerProfile) currentUserProfile);
+        List<JobSeekerSave> saved = jobSeekerSaveService.getCandidatesJob((JobSeekerProfile) currentUserProfile);
+
+        for (JobPostActivity jobActivity : jobPost) {
+            boolean isApplied = applied.stream()
+                    .anyMatch(a -> a.getJob().getJobPostId().equals(jobActivity.getJobPostId()));
+            boolean isSaved = saved.stream()
+                    .anyMatch(s -> s.getJob().getJobPostId().equals(jobActivity.getJobPostId()));
+
+            jobActivity.setIsActive(isApplied);
+            jobActivity.setIsSaved(isSaved);
+        }
+
+        model.addAttribute("jobPost", jobPost);
+        model.addAttribute("user", currentUserProfile);
+
+        return "dashboard";
+    }
+
+    private boolean isNoFilter(String job, String location, LocalDateTime searchDate,
+                           List<String> typeList, List<String> remoteList) {
+        return "%".equals(job)
+                && "%".equals(location)
+                && searchDate == null
+                && typeList.containsAll(List.of("Part-Time", "Full-Time", "Freelance"))
+                && remoteList.containsAll(List.of("Remote-Only", "Office-Only", "Partial-Remote"));
+    }
 
 
-       } else if (today) {
-           searchDate = LocalDateTime.now();
-       }else {
-           dateSearchFlag=false;
-       }
+    private static boolean isaBoolean(String job, String location, String partTime, String fullTime, String freelance, String remoteOnly, String officeOnly, String partialRemote, LocalDateTime searchDate) {
+        return job == null && location == null && searchDate == null &&
+                partTime != null && fullTime != null && freelance != null &&
+                remoteOnly != null && officeOnly != null && partialRemote != null;
+    }
 
-
-       if(partTime==null && fullTime==null && freelance==null){
-           partTime="Part-Time";
-           fullTime="Full-Time";
-           freelance="Freelance";
-           remote=false;
-       }
-       if(officeOnly==null && remoteOnly==null && partialRemote==null){
-           officeOnly="Office-Only";
-           remoteOnly="Remote-Only";
-           partialRemote="Partial-Remote";
-           type=false;
-
-       }
-
-       List<JobPostActivity> jobPost = null;
-       if(!dateSearchFlag && !remote && !type && !StringUtils.hasText(job) && !StringUtils.hasText(location)){
-           jobPost=jobPostActivityService.getAll();
-       }else{
-           jobPost=jobPostActivityService.search(job,location, Arrays.asList(partTime,fullTime,freelance),
-                                                  Arrays.asList(remoteOnly,officeOnly,partialRemote),searchDate);
-       }
-         System.out.println("jobpost contains"+jobPost);
-
-       Object currentUserProfile=usersService.getCurrentUserProfile();
-       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-       if(!(authentication instanceof AnonymousAuthenticationToken)){
-           String currentUsername=authentication.getName();
-           model.addAttribute("username",currentUsername);
-           if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))){
-               List<RecruiterJobsDto> recruiterJobs = jobPostActivityService.getRecruiterJobs(((RecruiterProfile) currentUserProfile).getUserAccountId());
-               model.addAttribute("jobPost",recruiterJobs);
-
-           }else{
-               List<JobSeekerApply> jobSeekerApplyList = jobSeekerApplyService.getCandidatesJobs((JobSeekerProfile) currentUserProfile);
-               List<JobSeekerSave> jobSeekerSaveList = jobSeekerSaveService.getCandidatesJob((JobSeekerProfile) currentUserProfile);
-               for(JobPostActivity jobActivity:jobPost){
-                   boolean exist = false;
-                   for(JobSeekerApply jobSeekerApply:jobSeekerApplyList){
-                       if(Objects.equals(jobActivity.getJobPostId(),jobSeekerApply.getJob().getJobPostId())){
-                           jobActivity.setIsActive(true);
-                           exist=true;
-                           break;
-                       }
-                   }
-
-                   boolean saved = false;
-                   for (JobSeekerSave jobSeekerSave:jobSeekerSaveList){
-                           if(Objects.equals(jobActivity.getJobPostId(),jobSeekerSave.getJob().getJobPostId())){
-                               jobActivity.setIsSaved(true);
-                               saved=true;
-                               break;
-                           }
-                       }
-                       if(!exist){
-                           jobActivity.setIsActive(false);
-                       }
-                       if(!saved){
-                           jobActivity.setIsSaved(false);
-                       }
-
-                       model.addAttribute("jobPost",jobPost);
-
-                   }
-               }
-           }
-
-       model.addAttribute("user",currentUserProfile);
-
-       return "dashboard";
-   }
-
-     @GetMapping("global-search/")
+    @GetMapping("global-search/")
     public String globalSearch(Model model,
-                             @RequestParam(value="job",required = false)String job,
-                             @RequestParam(value="location",required = false)String location,
-                             @RequestParam(value="partTime",required = false)String partTime,
-                             @RequestParam(value="fullTime",required = false)String fullTime,
-                             @RequestParam(value="freeLance",required = false)String freeLance,
-                             @RequestParam(value="remoteOnly",required = false)String remoteOnly,
-                             @RequestParam(value="officeOnly",required = false)String officeOnly,
-                             @RequestParam(value="partialRemote",required = false)String partialRemote,
-                             @RequestParam(value="today",required = false)boolean today,
-                             @RequestParam(value="days7",required = false)boolean days7,
-                             @RequestParam(value="days30",required = false)boolean days30
-                             ){
+                               @RequestParam(value = "job", required = false) String job,
+                               @RequestParam(value = "location", required = false) String location,
+                               @RequestParam(value = "partTime", required = false) String partTime,
+                               @RequestParam(value = "fullTime", required = false) String fullTime,
+                               @RequestParam(value = "freeLance", required = false) String freeLance,
+                               @RequestParam(value = "remoteOnly", required = false) String remoteOnly,
+                               @RequestParam(value = "officeOnly", required = false) String officeOnly,
+                               @RequestParam(value = "partialRemote", required = false) String partialRemote,
+                               @RequestParam(value = "today", required = false, defaultValue = "false") boolean today,
+                               @RequestParam(value = "days7", required = false, defaultValue = "false") boolean days7,
+                               @RequestParam(value = "days30", required = false, defaultValue = "false") boolean days30) {
 
+        // Preserve filter states in model
         model.addAttribute("job", job);
         model.addAttribute("location", location);
         model.addAttribute("partTime", Objects.equals(partTime, "Part-Time"));
@@ -189,48 +171,48 @@ public class JobPostActivityController {
         model.addAttribute("days7", days7);
         model.addAttribute("days30", days30);
 
-        LocalDateTime searchDate=null;
+        // Normalize job/location to allow broad matches
+        job = (job == null || job.trim().isEmpty()) ? "%" : job.trim();
+        location = (location == null || location.trim().isEmpty()) ? "%" : location.trim();
+
+        // Date filter
+        LocalDateTime searchDate = null;
+        if (days30) searchDate = LocalDateTime.now().minusDays(30);
+        else if (days7) searchDate = LocalDateTime.now().minusDays(7);
+        else if (today) searchDate = LocalDateTime.now().minusHours(24);
+
+        // Build job type list
+        List<String> typeList = new ArrayList<>();
+        if (partTime != null) typeList.add("Part-Time");
+        if (fullTime != null) typeList.add("Full-Time");
+        if (freeLance != null) typeList.add("Freelance");
+        if (typeList.isEmpty()) {
+            typeList = List.of("Part-Time", "Full-Time", "Freelance");
+        }
+
+        // Build remote list
+        List<String> remoteList = new ArrayList<>();
+        if (remoteOnly != null) remoteList.add("Remote-Only");
+        if (officeOnly != null) remoteList.add("Office-Only");
+        if (partialRemote != null) remoteList.add("Partial-Remote");
+        if (remoteList.isEmpty()) {
+            remoteList = List.of("Remote-Only", "Office-Only", "Partial-Remote");
+        }
+
+        // Search
         List<JobPostActivity> jobPost;
-        boolean dateSearchFlag=true;
-        boolean remote=true;
-        boolean type=true;
-
-        if(days30){
-            searchDate=LocalDateTime.now().minusDays(30);
-        }else if(days7){
-            searchDate=LocalDateTime.now().minusDays(7);
-        }
-        else if (today){
-            searchDate=LocalDateTime.now().minusHours(24);
-        }
-        else{
-            dateSearchFlag=false;
-        }
-
-        if(partTime==null && fullTime==null && freeLance ==null){
-            partTime="Part-Time";
-            fullTime = "Full-Time";
-            freeLance = "Freelance";
-            remote=false;
-        }
-
-        if(officeOnly==null && remoteOnly==null && partialRemote==null){
-            officeOnly="Office-Only";
-             remoteOnly = "Remote-Only";
-            partialRemote = "Partial-Remote";
-            type=false;
-        }
-
-
-        if(!dateSearchFlag && !remote && !type && !StringUtils.hasText(job) && !StringUtils.hasText(location)){
-            jobPost=jobPostActivityService.getAll();
-        }else{
-            jobPost=jobPostActivityService.search(job,location, Arrays.asList(partTime,fullTime,freeLance),Arrays.asList(remoteOnly,officeOnly,partialRemote),searchDate);
+        if ("%".equals(job) && "%".equals(location) && searchDate == null &&
+            typeList.containsAll(List.of("Part-Time", "Full-Time", "Freelance")) &&
+            remoteList.containsAll(List.of("Remote-Only", "Office-Only", "Partial-Remote"))) {
+            jobPost = jobPostActivityService.getAll();
+        } else {
+            jobPost = jobPostActivityService.search(job, location, remoteList, typeList, searchDate);
         }
 
         model.addAttribute("jobPost", jobPost);
         return "global-search";
     }
+
 
     @GetMapping("/dashboard/add")
     public String addJobs(Model model){

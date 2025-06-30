@@ -247,6 +247,9 @@
                        th:value="${job}"/>
                 <input id="loc" class="" type="text" placeholder="Job Location" name="location" th:value="${location}"/>
                 <button class="radius-right" type="submit" form="myForm"><i class="fa fa-search"></i></button>
+                <div th:if="${#lists.isEmpty(jobPost)}">
+                  <p>No jobs found for your filters . Adjust your filters.</p>
+                </div>
             </div>
         </div>
 
