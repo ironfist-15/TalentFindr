@@ -98,31 +98,41 @@ public class JobPostActivityController {
         if (remoteList.isEmpty()) {
             remoteList = List.of("Remote-Only", "Office-Only", "Partial-Remote");
         }
-
-        // Fetch jobs
-        List<JobPostActivity> jobPost;
-        if (isNoFilter(job, location, searchDate, typeList, remoteList)) {
-            jobPost = jobPostActivityService.getAll();
-        } else {
-            jobPost = jobPostActivityService.search(job, location, remoteList, typeList, searchDate);
-        }
-
-        // Annotate applied/saved
         Object currentUserProfile = usersService.getCurrentUserProfile();
-        List<JobSeekerApply> applied = jobSeekerApplyService.getCandidatesJobs((JobSeekerProfile) currentUserProfile);
-        List<JobSeekerSave> saved = jobSeekerSaveService.getCandidatesJob((JobSeekerProfile) currentUserProfile);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         if (!(authentication instanceof AnonymousAuthenticationToken)) {
+             String currentUsername = authentication.getName();
+             model.addAttribute("username", currentUsername);
+             if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))) {
+                 List<RecruiterJobsDto> recruiterJobs = jobPostActivityService.getRecruiterJobs(((RecruiterProfile) currentUserProfile).getUserAccountId());
+                 model.addAttribute("jobPost", recruiterJobs);
+             } else {
+                 List<JobSeekerApply> applied = jobSeekerApplyService.getCandidatesJobs((JobSeekerProfile) currentUserProfile);
+                 List<JobSeekerSave> saved = jobSeekerSaveService.getCandidatesJob((JobSeekerProfile) currentUserProfile);
+                 // Fetch jobs
+                 List<JobPostActivity> jobPost;
+                 if (isNoFilter(job, location, searchDate, typeList, remoteList)) {
+                     jobPost = jobPostActivityService.getAll();
+                 } else {
+                     jobPost = jobPostActivityService.search(job, location, remoteList, typeList, searchDate);
+                 }
 
-        for (JobPostActivity jobActivity : jobPost) {
-            boolean isApplied = applied.stream()
-                    .anyMatch(a -> a.getJob().getJobPostId().equals(jobActivity.getJobPostId()));
-            boolean isSaved = saved.stream()
-                    .anyMatch(s -> s.getJob().getJobPostId().equals(jobActivity.getJobPostId()));
+                 // Annotate applied/saved
 
-            jobActivity.setIsActive(isApplied);
-            jobActivity.setIsSaved(isSaved);
-        }
+                 for (JobPostActivity jobActivity : jobPost) {
+                     boolean isApplied = applied.stream()
+                             .anyMatch(a -> a.getJob().getJobPostId().equals(jobActivity.getJobPostId()));
+                     boolean isSaved = saved.stream()
+                             .anyMatch(s -> s.getJob().getJobPostId().equals(jobActivity.getJobPostId()));
 
-        model.addAttribute("jobPost", jobPost);
+                     jobActivity.setIsActive(isApplied);
+                     jobActivity.setIsSaved(isSaved);
+                 }
+
+                 model.addAttribute("jobPost", jobPost);
+          }
+         }
+
         model.addAttribute("user", currentUserProfile);
 
         return "dashboard";

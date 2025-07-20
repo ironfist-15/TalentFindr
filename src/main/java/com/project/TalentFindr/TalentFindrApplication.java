@@ -11,8 +11,7 @@ public class TalentFindrApplication {
 	public static void main(String... args) {
 		SpringApplication.run(TalentFindrApplication.class, args);
 	}
-    //  photo not showing
-	//  global search
+
 
 	// record video
 	// host it
