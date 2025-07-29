@@ -15,8 +15,8 @@ Of JobSeekers :-
 
 For the chat feature:
 
-*Uses websockets for live communication between recruiter and jobseeker.
-*Uses STOMP(simple text oriented message protocol) over websockets for communication
+* Uses websockets for live communication between recruiter and jobseeker.
+* Uses STOMP(simple text oriented message protocol) over websockets for communication
 * The frontend basically starts the websocket connection , while the server waits for json message format, it it to the database and publishes it to all the subscribers in real tine
 
 The databse is hosted on aiven .
