@@ -59,4 +59,14 @@ public class UsersController {
         usersService.addUser(user);
         return "redirect:/dashboard/";
     }
+
+
+    @GetMapping("/trial")
+    public String trial() {
+        System.out.println("🎯 Controller reached: /api/test/trial");
+        return "successful";
+    }
+
+
+
 }

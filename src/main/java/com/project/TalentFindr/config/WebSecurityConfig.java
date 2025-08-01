@@ -47,7 +47,12 @@ public class WebSecurityConfig {
             "/fonts**",
             "/favicon.ico",
             "/resources/**",
-            "/error"
+            "/error",
+            "/chat/thread",
+            "/char/send",
+            "/topic/thread",
+            "/ws-chat/**",
+            "/app/chat/send"
     };
 
     @Bean
