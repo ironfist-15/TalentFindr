@@ -42,7 +42,7 @@
                     method="post"
                     enctype="multipart/form-data"
             >
-                <div class="row" style="margin-right:0; margin-left:0;">
+                <div class="row g-0">
                     <div class="col-md-12">
                         <div class="d-flex justify-content-center pt-3">
                             <h1 class="heading_font font-weight-bold">Candidate</h1>
@@ -60,7 +60,6 @@
                         <div class="row">
                             <div class="col-md-6 pr-1">
                                 <input
-
                                         id="user_account_id"
                                         th:field="*{userAccountId}"
                                         name="userAccountId"
@@ -149,8 +148,8 @@
                         <label class=" heading_font font_sub_heading_color"
                         >Skills</label
                         >
-                        <div class="parent" th:each="skills, iterStat : *{skills}">
-                            <div id="skill-repeat">
+                        <div id="skills-container" class="parent">
+                            <div class="skill-repeat" th:each="skills, iterStat : *{skills}">
                                 <div class="row">
                                     <div class="col-md-4 pr-1">
                                         <input
@@ -216,7 +215,6 @@
                                 />
                                 <input type="text" name="profilePhoto" th:field="*{profilePhoto}" class="form-control"
                                        hidden/>
-
                             </div>
                             <div class="col-md-5 me-5">
                                 <label class="heading_font font_sub_heading_color">
@@ -236,28 +234,35 @@
                                     Resume</a>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="row mt-3 col d-flex justify-content-center"
-                             sec:authorize="hasAuthority('Job Seeker')">
-                            <div class="text-right">
-                                <button
-                                        type="submit"
-                                        id="submit2"
-                                        name="submit"
-                                        class="btn btn-primary base_button px-4 py-2"
-                                >
-                                    Save
-                                </button>
-                            </div>
-                        </div>
+                <div class="row mt-3" sec:authorize="hasAuthority('Job Seeker')">
+                    <div class="col d-flex justify-content-center">
+                        <button
+                                type="submit"
+                                id="submit2"
+                                name="submit"
+                                class="btn btn-primary base_button px-4 py-2"
+                        >
+                            Save
+                        </button>
                     </div>
                 </div>
             </form>
+
+            <div class="row mt-3" sec:authorize="hasAuthority('Recruiter')">
+                <div class="col d-flex justify-content-center">
+                    <form th:action="@{/chat/thread/new}" method="post">
+                    <input type="hidden" name="receiverId" th:value="${profile.userAccountId}" />
+                    <button type="submit" class="btn btn-primary base_button px-4 py-2">
+                        Chat with this candidate
+                    </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-<div sec:authorize="hasAuthority('Recruiter')">
-
 </div>
 </body>
 <script
@@ -273,60 +278,52 @@
         th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"
 ></script>
 <script type="text/javascript" th:src="@{/js/main.js}"></script>
+
 <script sec:authorize="hasAuthority('Recruiter')">
-    console.log("Disable inputs");
-  $("input").prop( "disabled", true );
-   $("select").prop( "disabled", true );
-       $("button").prop( "disabled", true );
+    console.log("Disabling Job Seeker profile inputs for Recruiter view.");
+
+    // Select the form based on its action attribute for a specific target
+    const profileForm = $("form[th\\:action='@{/job-seeker-profile/addNew}']");
+
+    // Use .find() to select inputs and selects *only within that specific form*
+    profileForm.find("input").prop("disabled", true);
+    profileForm.find("select").prop("disabled", true);
+
+    // This will disable all buttons inside the profile form, but not the chat button
+    profileForm.find("button").prop("disabled", true);
+
+    // The hidden input for the chat form is now correctly functional.
 </script>
+
 <script>
+    $(document).on("click", "#addSkill", function (e) {
+        e.preventDefault();
 
+        // Get the current number of skill divs to ensure unique name attributes
+        var counter = $('#skills-container').children().length;
 
-    var counter = 0;
-     $(document).on("click", "#addSkill", function (e) {
-       e.preventDefault();
-       counter++;
-        var newRow = jQuery("<div id='skill-repeat'><div class='row'>"+
-                   "    <div class='col-md-4 pr-1'>"+
-                   "     <input"+
-                   "        hidden type='text'"+
-                   "        class='form-control' "+
-                   "        name='skills["+counter+"].Id'"+
-                   "      />"+
-                   "      <input"+
-                   "        placeholder='Skill Name'"+
-                   "        type='text'"+
-                   "        class='form-control'"+
-                   "        name='skills["+counter+"].name'"+
-                   "      />"+
-                   "    </div>"+
-                   "    <div class='col-md-4 px-1'>"+
-                   "      <input"+
-                   "        placeholder='Years of Experience'"+
-                   "        type='text'"+
-                   "        class='form-control'"+
-                   "        name='skills["+counter+"].yearsOfExperience'"+
-                   "      />"+
-                   "    </div>"+
-                   "    <div class='form-group col-md-4 pl-1'>"+
-                   "      <select"+
-                   "        required"+
-                   "        class='form-control'"+
-                   "        name='skills["+counter+"].experienceLevel'"+
-                   "      >"+
-                   "        <option selected>Experience Level</option>"+
-                   "        <option value='Beginner'>Beginner</option>"+
-                   "        <option value='Intermediate'>Intermediate</option>"+
-                   "        <option value='Advance'>Advance</option>"+
-                   "      </select>"+
-                   "    </div>"+
-                   "  </div>"+
-                   "</div>");
-        console.log(newRow);
-       $('#skill-repeat')
-         .parent('div.parent')
-         .append(newRow);
+        var newRow = jQuery("<div class='skill-repeat'>"+
+            "    <div class='row'>"+
+            "      <div class='col-md-4 pr-1'>"+
+            "        <input hidden type='text' class='form-control' name='skills["+counter+"].id'/>"+
+            "        <input placeholder='Skill Name' type='text' class='form-control' name='skills["+counter+"].name'/>"+
+            "      </div>"+
+            "      <div class='col-md-4 px-1'>"+
+            "        <input placeholder='Years of Experience' type='text' class='form-control' name='skills["+counter+"].yearsOfExperience'/>"+
+            "      </div>"+
+            "      <div class='form-group col-md-4 pl-1'>"+
+            "        <select required class='form-control' name='skills["+counter+"].experienceLevel'>"+
+            "          <option selected>Experience Level</option>"+
+            "          <option value='Beginner'>Beginner</option>"+
+            "          <option value='Intermediate'>Intermediate</option>"+
+            "          <option value='Advance'>Advance</option>"+
+            "        </select>"+
+            "      </div>"+
+            "    </div>"+
+            "  </div>");
 
-     });
+        // Append the new row to the dedicated skills container
+        $('#skills-container').append(newRow);
+    });
 </script>
 </html>

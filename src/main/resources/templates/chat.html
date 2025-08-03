@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chat</title>
+    <meta charset="UTF-8">
+
+    <link
+            th:rel="stylesheet"
+            th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "
+    />
+    <link
+            rel="stylesheet"
+            type="text/css"
+            media="all"
+            th:href="@{/css/font-awesome.min.css}"
+    />
+    <link
+            rel="stylesheet"
+            type="text/css"
+            media="all"
+            th:href="@{/css/styles.css}"
+    />
+    <link
+            href="https://fonts.googleapis.com/css?family=Montserrat"
+            rel="stylesheet"
+    />
+
+    <style>
+        body {
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            height: 90vh;
+            margin: 30px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .chat-body {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 70%;
+        }
+
+        .sent {
+            align-self: flex-end;
+            background-color: #dcf8c6;
+        }
+
+        .received {
+            align-self: flex-start;
+            background-color: #f1f0f0;
+        }
+
+        .chat-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: #fafafa;
+        }
+
+        /* Using Bootstrap's form-control and btn classes */
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">
+        <h2 class="heading_font">Chat Thread</h2>
+    </div>
+
+    <div class="chat-body" id="chatBody">
+        <div th:each="message : ${chat_history}"
+             th:class="'chat-message ' + (${message.senderId == currentUserId} ? 'sent' : 'received')">
+            <span th:text="${message.message}">Sample message</span>
+        </div>
+    </div>
+
+    <form id="chatForm" class="chat-footer">
+        <input type="text" id="messageInput" name="message" class="form-control" placeholder="Type your message..." required />
+        <input type="hidden" id="threadId" name="threadId" th:value="${ThreadId}" />
+        <input type="hidden" id="senderId" name="senderId" th:value="${currentUserId}" />
+        <button type="submit" class="btn btn-primary base_button">Send</button>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script>
+    var stompClient = null;
+
+    // Get values from hidden input fields set by Thymeleaf
+    var threadId = document.getElementById('threadId').value;
+    var senderId = document.getElementById('senderId').value;
+    var messageInput = document.getElementById('messageInput');
+    var chatBody = document.getElementById('chatBody');
+    var chatForm = document.getElementById('chatForm');
+
+    // Function to connect to the WebSocket server
+    function connect() {
+        var socket = new SockJS('/ws-chat');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, onConnected, onError);
+    }
+
+    // Callback function when connected to the WebSocket
+    function onConnected() {
+        console.log('Connected to WebSocket');
+
+        // Subscribe to the topic for this specific chat thread
+        stompClient.subscribe('/topic/thread/' + threadId, onMessageReceived);
+
+        // Disable the form from submitting a normal HTTP request
+        chatForm.addEventListener('submit', sendMessage, true);
+    }
+
+    // Callback function for errors
+    function onError(error) {
+        console.error('WebSocket connection error:', error);
+    }
+
+    // Function to handle incoming messages from the server
+    function onMessageReceived(payload) {
+        var message = JSON.parse(payload.body);
+
+        // Determine alignment based on senderId
+        var alignmentClass = (message.senderId == senderId) ? 'sent' : 'received';
+
+        // Create new message bubble and append to the chat body
+        var messageDiv = document.createElement('div');
+        messageDiv.className = 'row g-0';
+        messageDiv.innerHTML = `
+            <div class="col-12 d-flex ${alignmentClass === 'sent' ? 'justify-content-end' : 'justify-content-start'}">
+                <div class="chat-message message-bubble ${alignmentClass}">
+                    <span>${message.message}</span>
+                </div>
+            </div>
+        `;
+        chatBody.appendChild(messageDiv);
+
+        // Scroll to the bottom of the chat body
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Function to send a message via WebSocket
+    function sendMessage(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        var messageContent = messageInput.value.trim();
+
+        if (messageContent && stompClient) {
+            var chatMessage = {
+                message: messageContent,
+                threadId: threadId,
+                senderId: senderId
+            };
+
+            // Send the message to the server
+            stompClient.send('/app/send', {}, JSON.stringify(chatMessage));
+
+            // Clear the input field after sending
+            messageInput.value = '';
+        }
+    }
+
+    // Connect to WebSocket when the page loads
+    connect();
+
+</script>
+</body>
+</html>

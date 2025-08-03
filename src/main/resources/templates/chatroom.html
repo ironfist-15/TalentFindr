@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>My Chats</title>
+    <meta charset="UTF-8">
+    <link
+            th:rel="stylesheet"
+            th:href="@{/webjars/bootstrap/css/bootstrap.min.css} "
+    />
+    <link
+            rel="stylesheet"
+            type="text/css"
+            media="all"
+            th:href="@{/css/styles.css}"
+    />
+    <link
+            href="https://fonts.googleapis.com/css?family=Montserrat"
+            rel="stylesheet"
+    />
+</head>
+<body>
+<div class="container-fluid my-4">
+    <div class="box">
+        <h1 class="primary-title">My Chats</h1>
+    </div>
+
+    <div class="box mt-3" th:if="${#lists.isEmpty(mychats)}">
+        <div class="row text-center my-5">
+            <div class="col-md-12">
+                <p class="text-secondary">Your chats will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:unless="${#lists.isEmpty(mychats)}">
+        <div class="box mt-3">
+            <label class="large-label px-3 mb-3">Conversations</label>
+            <th:block th:each="chatThread:${mychats}">
+                <a
+                        th:href="@{/chat/thread/{id}(id=${chatThread.id})}"
+                        style="text-decoration: none; color: black"
+                >
+                    <div class="job-row">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="job-title text-left">
+                                    <span
+                                            th:if="${chatThread.recruiter.userId == currentUserId}"
+                                            th:text="${chatThread.jobSeeker.email}"
+                                    >Job Seeker Name</span
+                                    >
+                                    <span
+                                            th:if="${chatThread.jobSeeker.userId == currentUserId}"
+                                            th:text="${chatThread.recruiter.email}"
+                                    >Recruiter Name</span
+                                    >
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </th:block>
+        </div>
+    </th:block>
+
+</div>
+<script
+        type="text/javascript"
+        th:src="@{/webjars/jquery/jquery.min.js}"
+></script>
+<script
+        type="text/javascript"
+        th:src="@{/webjars/popper.js/umd/popper.min.js}"
+></script>
+<script
+        type="text/javascript"
+        th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"
+></script>
+</body>
+</html>

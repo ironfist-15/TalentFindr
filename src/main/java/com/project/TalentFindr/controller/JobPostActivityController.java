@@ -10,12 +10,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.project.TalentFindr.entity.*;
-import com.project.TalentFindr.service.JobPostActivityService;
-import com.project.TalentFindr.service.JobSeekerApplyService;
-import com.project.TalentFindr.service.JobSeekerSaveService;
+import com.project.TalentFindr.service.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.ui.Model;
-import com.project.TalentFindr.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,12 +33,15 @@ public class JobPostActivityController {
     public JobPostActivityService jobPostActivityService;
     public JobSeekerApplyService jobSeekerApplyService;
     public JobSeekerSaveService jobSeekerSaveService;
+    public ChatHelperService chatHelperService;
 
-    public JobPostActivityController(UsersService usersService, JobPostActivityService jobPostActivityService, JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService) {
+
+    public JobPostActivityController(UsersService usersService, JobPostActivityService jobPostActivityService, JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService,ChatHelperService chatHelperService) {
         this.usersService = usersService;
         this.jobPostActivityService = jobPostActivityService;
         this.jobSeekerApplyService = jobSeekerApplyService;
         this.jobSeekerSaveService = jobSeekerSaveService;
+        this.chatHelperService = chatHelperService;
     }
 
     @GetMapping("/dashboard/")
@@ -251,6 +251,15 @@ public class JobPostActivityController {
         model.addAttribute("jobPostActivity",jobPostActivity);
         model.addAttribute("user",usersService.getCurrentUserProfile());
         return "add-jobs";
+    }
+
+    @GetMapping("/dashboard/chatroom")
+    public String chatRoom(Model model){
+        Users user=usersService.getCurrentUser();
+        List<ChatThread> mychats=chatHelperService.chatThreadList();
+        model.addAttribute("mychats",mychats);
+        model.addAttribute("currentUserId", user.getUserId());
+        return "chatroom";
     }
 
 }

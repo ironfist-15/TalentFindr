@@ -38,10 +38,12 @@ public class CandidateProfileController {
     @Autowired
     public CandidateProfileService candidateProfileService;
     public UsersRepository usersRepository;
+    public FileDownloadUtil fileDownloadUtil;
 
-    public CandidateProfileController(CandidateProfileService candidateProfileService, UsersRepository usersRepository) {
+    public CandidateProfileController(CandidateProfileService candidateProfileService, UsersRepository usersRepository, FileDownloadUtil fileDownloadUtil) {
         this.candidateProfileService = candidateProfileService;
         this.usersRepository = usersRepository;
+        this.fileDownloadUtil = fileDownloadUtil;
     }
 
     @GetMapping("/")
@@ -141,7 +143,7 @@ public class CandidateProfileController {
     public ResponseEntity<?> downloadResume(@RequestParam("fileName") String fileName,
                                             @RequestParam("userID") String userId) {
 
-        FileDownloadUtil downloadUtil = new FileDownloadUtil();
+
         Resource resource;
 
         try {
@@ -150,7 +152,7 @@ public class CandidateProfileController {
 
             System.out.println("Looking for file: " + fileName + " in directory: " + downloadDir);
 
-            resource = downloadUtil.getFileAsResource(downloadDir, fileName);
+            resource = fileDownloadUtil.getFileAsResource(downloadDir, fileName);
 
             if (resource == null || !resource.exists()) {
                 System.out.println("File not found or doesn't exist: " + fileName);

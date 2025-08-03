@@ -12,12 +12,8 @@ public class TalentFindrApplication {
 		SpringApplication.run(TalentFindrApplication.class, args);
 	}
 
-
-	// record video
-	// host it
-
-	//change bg
-	// add friends feature
+	// ensure gmail is accurate
+	// then make sure the page is dynamically loaded for chats .
 }
 
 

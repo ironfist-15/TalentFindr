@@ -48,7 +48,6 @@ public class WebSecurityConfig {
             "/favicon.ico",
             "/resources/**",
             "/error",
-            "/chat/thread",
             "/char/send",
             "/topic/thread",
             "/ws-chat/**",

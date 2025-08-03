@@ -13,12 +13,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue"); // Client subscribes to this
-        config.setApplicationDestinationPrefixes("/app"); // Client sends to this
+        config.enableSimpleBroker("/topic", "/queue"); //  It tells the server to manage destinations (channels) that start with /topic and /queue
+        config.setApplicationDestinationPrefixes("/app"); //tell the server this endpoints are for message mapping
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-chat").setAllowedOriginPatterns("*").withSockJS(); // Client connects here
+        registry.addEndpoint("/ws-chat").setAllowedOriginPatterns("*").withSockJS(); // Client starts a web socket connection
     }
 }

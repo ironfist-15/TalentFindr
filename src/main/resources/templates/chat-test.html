@@ -2,49 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WebSocket Chat Test</title>
+  <title>Fetch Chat Messages</title>
 </head>
 <body>
-  <h2>WebSocket Chat Test</h2>
+  <h2>Fetch Messages by Thread ID</h2>
 
-  <label>Message:</label>
-  <input type="text" id="messageInput" placeholder="Type your message..." />
-  <button onclick="sendMessage()">Send</button>
+  <label for="threadId">Thread ID:</label>
+  <input type="number" id="threadId" value="1" />
+  <button onclick="fetchMessages()">Fetch Messages</button>
 
   <h3>Messages:</h3>
-  <pre id="chatBox"></pre>
+  <pre id="resultBox" style="border: 1px solid #ccc; padding: 10px; max-height: 300px; overflow-y: auto;"></pre>
 
-  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
   <script>
-    const senderId = 9;
-    const threadId = 1;
-    const socket = new SockJS('http://localhost:8080/ws-chat');
-    const stompClient = Stomp.over(socket);
-    stompClient.debug = null; // disable console logs
-
-    stompClient.connect({}, function (frame) {
-      console.log('Connected: ' + frame);
-
-      // Subscribe to thread topic
-      stompClient.subscribe(`/topic/thread/${threadId}`, function (messageOutput) {
-        const message = JSON.parse(messageOutput.body);
-        document.getElementById('chatBox').textContent += `[${message.senderId}] ${message.message}\n`;
-      });
-    });
-
-    function sendMessage() {
-      const content = document.getElementById('messageInput').value;
-      if (!content) return;
-
-      const payload = {
-        senderId: senderId,
-        threadId: threadId,
-        message: content
-      };
-
-      stompClient.send("/app/send", {}, JSON.stringify(payload));
-      document.getElementById('messageInput').value = '';
+    function fetchMessages() {
+      const id = document.getElementById("threadId").value;
+      fetch(`http://localhost:8080/chat/thread/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          const box = document.getElementById("resultBox");
+          box.textContent = "";
+          data.forEach(msg => {
+            box.textContent += `[${msg.senderId}] ${msg.message}\n`;
+          });
+        })
+        .catch(err => {
+          document.getElementById("resultBox").textContent = "Error: " + err;
+        });
     }
   </script>
 </body>
