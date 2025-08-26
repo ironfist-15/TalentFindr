@@ -1,7 +1,5 @@
 TalentFindr is a job portal website that mimics LinkedIn . It provides role based acess for recruiters and job Seekers using Spring Security .
 
-Demo:-https://drive.google.com/drive/u/1/folders/1wOopcXLyX_xaZTgnxGphzguHGxTIIQbI
-
 Functionalities of Recruiters:-
 1) post jobs
 2) Create a full Recruiter profile .
@@ -20,6 +18,8 @@ For the chat feature:
 * Uses websockets for live communication between recruiter and jobseeker.
 * Uses STOMP(simple text oriented message protocol) over websockets for communication
 * The frontend basically starts the websocket connection , while the server waits for json message format, it saves it to the database and publishes it to all the subscribers in real tine
+
+Demo:-https://drive.google.com/drive/u/1/folders/1wOopcXLyX_xaZTgnxGphzguHGxTIIQbI
 
 The databse is hosted on aiven .
  
