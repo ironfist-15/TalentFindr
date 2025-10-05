@@ -19,6 +19,8 @@ For the chat feature:
 * Uses STOMP(simple text oriented message protocol) over websockets for communication
 * The frontend basically starts the websocket connection , while the server waits for json message format, it saves it to the database and publishes it to all the subscribers in real tine
 
+Demo:-https://drive.google.com/drive/u/1/folders/1wOopcXLyX_xaZTgnxGphzguHGxTIIQbI
+
 The databse is hosted on aiven .
  
 Tech Stack:- SpringBoot, MySql, Bootstrap CSS ,Websocket/SockJs .
