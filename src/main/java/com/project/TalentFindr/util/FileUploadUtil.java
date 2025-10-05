@@ -20,8 +20,6 @@ public class FileUploadUtil {
 
         try (InputStream inputStream = multipartFile.getInputStream();) {
             Path path = uploadPath.resolve(filename);
-            System.out.println("FilePath " + path);
-            System.out.println("fileName " + filename);
             Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
         }
         catch (IOException ioe) {
