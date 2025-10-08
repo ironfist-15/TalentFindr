@@ -9,7 +9,7 @@ import com.project.TalentFindr.Repository.UsersRepository;
 import com.project.TalentFindr.entity.RecruiterProfile;
 import com.project.TalentFindr.entity.Users;
 import com.project.TalentFindr.service.RecruiterProfileService;
-import com.luv2code.jobportal.util.FileUploadUtil;
+import com.project.TalentFindr.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,12 +32,15 @@ public class RecruiterProfileController {
     public UsersRepository usersRepository;
     public RecruiterProfileRepository recruiterProfileRepository;
     public RecruiterProfileService recruiterProfileService;
+    public FileUploadUtil fileUploadUtil;
 
-    public RecruiterProfileController(UsersRepository usersRepository,RecruiterProfileRepository recruiterProfileRepository,RecruiterProfileService recruiterProfileService) {
+    public RecruiterProfileController(UsersRepository usersRepository,RecruiterProfileRepository recruiterProfileRepository,RecruiterProfileService recruiterProfileService,FileUploadUtil fileUploadUtil) {
         this.usersRepository = usersRepository;
         this.recruiterProfileRepository=recruiterProfileRepository;
         this.recruiterProfileService=recruiterProfileService;
+        this.fileUploadUtil=fileUploadUtil;
     }
+
 
     @GetMapping("/")
     public String recruiterProfile(Model model){
@@ -60,7 +63,7 @@ public class RecruiterProfileController {
                          Model model) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        FileUploadUtil fileUploadUtil = new FileUploadUtil();
+//        FileUploadUtil fileUploadUtil = new FileUploadUtil();
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUsername = authentication.getName();
@@ -83,10 +86,12 @@ public class RecruiterProfileController {
         RecruiterProfile savedUser = recruiterProfileService.addNew(recruiterProfile);
 
         // Upload directory
-        String uploadDir = "D:/desktop2.0/jobportal/uploaded-files/photos/recruiter/" + savedUser.getUserAccountId();
+        //String uploadDir = "D:/desktop2.0/jobportal/uploaded-files/photos/recruiter/" + savedUser.getUserAccountId();
 
+
+        String key=savedUser.getUserAccountId()+"_"+fileName;
         try {
-            fileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+            fileUploadUtil.saveFile(key, multipartFile);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

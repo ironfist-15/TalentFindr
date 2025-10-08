@@ -1,33 +1,37 @@
 package com.project.TalentFindr.util;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
+import java.io.InputStream;
 
 @Component
 public class FileDownloadUtil {
 
-    private Path foundFile;
+    private final S3Client s3Client;
+    private final String bucketName;
 
-    public Resource getFileAsResource(String downloadDir,String fileName) throws IOException{
+    // Inject bucket name via constructor or @Value
+    public  FileDownloadUtil(S3Client s3Client, String bucketName) {
+        this.s3Client = s3Client;
+        this.bucketName = bucketName;
+    }
 
-        Path path= Paths.get(downloadDir);
-        Files.list(path).forEach(file ->{
-            if(file.getFileName().toString().startsWith(fileName)){
-                foundFile=file;
-            }
-        });
-
-        if(foundFile!=null){
-            return new UrlResource(foundFile.toUri());
+    public Resource getFileAsResource(String keyName) throws Exception {
+        try {
+            InputStream inputStream = s3Client.getObject(
+                    GetObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(keyName)
+                            .build()
+            );
+            return new InputStreamResource(inputStream);
+        } catch (NoSuchKeyException e) {
+            // file not found in S3
+            return null;
         }
-
-        return null;
     }
 }

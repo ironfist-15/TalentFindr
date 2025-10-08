@@ -1,29 +1,35 @@
-package com.luv2code.jobportal.util;
+package com.project.TalentFindr.util;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import org.springframework.stereotype.Component;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.core.sync.RequestBody;
 
+@Component
 public class FileUploadUtil {
 
-    public  void saveFile(String uploadDir, String filename, MultipartFile multipartFile) throws IOException {
+    private final S3Client s3Client;
+    private final String bucketName;
 
-        Path uploadPath = Paths.get(uploadDir);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+    // Inject via constructor
+    public FileUploadUtil(S3Client s3Client, String bucketName) {
+        this.s3Client = s3Client;
+        this.bucketName = bucketName;
+    }
 
-        try (InputStream inputStream = multipartFile.getInputStream();) {
-            Path path = uploadPath.resolve(filename);
-            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
-        }
-        catch (IOException ioe) {
-            throw new IOException("Could not save image file: " + filename, ioe);
+    public void saveFile(String keyName, MultipartFile multipartFile) throws Exception {
+        try {
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(keyName)
+                            .build(),
+                    RequestBody.fromInputStream(multipartFile.getInputStream(), multipartFile.getSize())
+            );
+        } catch (Exception e) {
+            throw new Exception("Could not upload file: " + keyName, e);
         }
     }
 }

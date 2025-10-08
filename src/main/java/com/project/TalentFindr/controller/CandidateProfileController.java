@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.luv2code.jobportal.util.FileUploadUtil;
+import com.project.TalentFindr.util.FileUploadUtil;
 import com.project.TalentFindr.Repository.UsersRepository;
 import com.project.TalentFindr.entity.JobSeekerProfile;
 import com.project.TalentFindr.entity.Skills;
@@ -18,7 +18,6 @@ import com.project.TalentFindr.util.FileDownloadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -39,11 +38,13 @@ public class CandidateProfileController {
     public CandidateProfileService candidateProfileService;
     public UsersRepository usersRepository;
     public FileDownloadUtil fileDownloadUtil;
+    public FileUploadUtil fileUploadUtil;
 
-    public CandidateProfileController(CandidateProfileService candidateProfileService, UsersRepository usersRepository, FileDownloadUtil fileDownloadUtil) {
+    public CandidateProfileController(CandidateProfileService candidateProfileService, UsersRepository usersRepository, FileDownloadUtil fileDownloadUtil,FileUploadUtil fileUploadUtil) {
         this.candidateProfileService = candidateProfileService;
         this.usersRepository = usersRepository;
         this.fileDownloadUtil = fileDownloadUtil;
+        this.fileUploadUtil=fileUploadUtil;
     }
 
     @GetMapping("/")
@@ -73,7 +74,7 @@ public class CandidateProfileController {
                          @RequestParam("pdf") MultipartFile pdf) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        FileUploadUtil fileUploadUtil = new FileUploadUtil();
+        //FileUploadUtil fileUploadUtil = new FileUploadUtil();
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             Users user = usersRepository.findByEmail(authentication.getName())
@@ -107,9 +108,10 @@ public class CandidateProfileController {
         // Save image to disk
         if (!image.isEmpty()) {
             String imageUploadDir = "D:/desktop2.0/jobportal/uploaded-files/photos/candidate/" + savedProfile.getUserAccountId();
+            String key=savedProfile.getUserAccountId()+"_"+savedProfile.getProfilePhoto();
             try {
-                fileUploadUtil.saveFile(imageUploadDir, savedProfile.getProfilePhoto(), image);
-            } catch (IOException ex) {
+                fileUploadUtil.saveFile(key, image);
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 throw new RuntimeException("Image upload failed");
             }
@@ -117,12 +119,16 @@ public class CandidateProfileController {
 
         // Save resume to disk
         if (!pdf.isEmpty()) {
+
             String resumeUploadDir = "D:/desktop2.0/jobportal/uploaded-files/resumes/candidate/" + savedProfile.getUserAccountId();
+            String key=savedProfile.getUserAccountId()+"_"+savedProfile.getResume();
             try {
-                fileUploadUtil.saveFile(resumeUploadDir, savedProfile.getResume(), pdf);
+                fileUploadUtil.saveFile(key,pdf);
             } catch (IOException ex) {
                 ex.printStackTrace();
                 throw new RuntimeException("Resume upload failed");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
 
@@ -151,8 +157,8 @@ public class CandidateProfileController {
             String downloadDir = "D:/desktop2.0/jobportal/uploaded-files/resumes/candidate/" + userId;
 
             System.out.println("Looking for file: " + fileName + " in directory: " + downloadDir);
-
-            resource = fileDownloadUtil.getFileAsResource(downloadDir, fileName);
+            String key=userId+"_"+fileName;
+            resource = fileDownloadUtil.getFileAsResource(key);
 
             if (resource == null || !resource.exists()) {
                 System.out.println("File not found or doesn't exist: " + fileName);
@@ -165,8 +171,10 @@ public class CandidateProfileController {
                     .body(resource);
 
         } catch (IOException e) {
-            e.printStackTrace(); // 👈 add this
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Resume could not be found or accessed.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
