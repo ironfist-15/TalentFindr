@@ -40,12 +40,6 @@ public class CandidateProfileController {
     public FileDownloadUtil fileDownloadUtil;
     public FileUploadUtil fileUploadUtil;
 
-    public CandidateProfileController(CandidateProfileService candidateProfileService, UsersRepository usersRepository, FileDownloadUtil fileDownloadUtil,FileUploadUtil fileUploadUtil) {
-        this.candidateProfileService = candidateProfileService;
-        this.usersRepository = usersRepository;
-        this.fileDownloadUtil = fileDownloadUtil;
-        this.fileUploadUtil=fileUploadUtil;
-    }
 
     @GetMapping("/")
     public String candidateprofile(Model model){
@@ -74,7 +68,6 @@ public class CandidateProfileController {
                          @RequestParam("pdf") MultipartFile pdf) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //FileUploadUtil fileUploadUtil = new FileUploadUtil();
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             Users user = usersRepository.findByEmail(authentication.getName())
@@ -107,7 +100,6 @@ public class CandidateProfileController {
 
         // Save image to disk
         if (!image.isEmpty()) {
-            String imageUploadDir = "D:/desktop2.0/jobportal/uploaded-files/photos/candidate/" + savedProfile.getUserAccountId();
             String key=savedProfile.getUserAccountId()+"_"+savedProfile.getProfilePhoto();
             try {
                 fileUploadUtil.saveFile(key, image);
@@ -120,8 +112,7 @@ public class CandidateProfileController {
         // Save resume to disk
         if (!pdf.isEmpty()) {
 
-            String resumeUploadDir = "D:/desktop2.0/jobportal/uploaded-files/resumes/candidate/" + savedProfile.getUserAccountId();
-            String key=savedProfile.getUserAccountId()+"_"+savedProfile.getResume();
+             String key=savedProfile.getUserAccountId()+"_"+savedProfile.getResume();
             try {
                 fileUploadUtil.saveFile(key,pdf);
             } catch (IOException ex) {
@@ -154,9 +145,6 @@ public class CandidateProfileController {
 
         try {
 
-            String downloadDir = "D:/desktop2.0/jobportal/uploaded-files/resumes/candidate/" + userId;
-
-            System.out.println("Looking for file: " + fileName + " in directory: " + downloadDir);
             String key=userId+"_"+fileName;
             resource = fileDownloadUtil.getFileAsResource(key);
 
