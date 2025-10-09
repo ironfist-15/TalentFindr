@@ -142,32 +142,31 @@ public class CandidateProfileController {
     @GetMapping("/downloadResume")
     public ResponseEntity<?> downloadResume(@RequestParam("fileName") String fileName,
                                             @RequestParam("userID") String userId) {
-
-
-        Resource resource;
-
         try {
-
-            String key=userId+"_CandidateResume_"+fileName;
+            String key = userId + "_CandidateResume_" + fileName;
             System.out.println("Downloading key: " + key);
-            resource = fileDownloadUtil.getFileAsResource(key);
 
-            if (resource == null) {
+            Resource resource = fileDownloadUtil.getFileAsResource(key);
+
+            if (resource == null || !resource.exists()) {
                 System.out.println("File not found or doesn't exist: " + fileName);
                 return ResponseEntity.status(404).body("Resume not found");
             }
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .contentLength(resource.contentLength())
                     .body(resource);
 
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Resume could not be found or accessed.");
+            return ResponseEntity.badRequest().body("Resume could not be accessed.");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
 
 }

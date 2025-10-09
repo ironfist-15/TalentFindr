@@ -2,16 +2,18 @@ package com.project.TalentFindr.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
+
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
-import java.io.InputStream;
 import java.time.Duration;
 
 @Component
@@ -34,21 +36,31 @@ public class FileDownloadUtil {
 
 
     public Resource getFileAsResource(String keyName) throws Exception {
-        try (InputStream inputStream = s3Client.getObject(
-                GetObjectRequest.builder()
-                        .bucket(bucketName)
-                        .key(keyName)
-                        .build())) {
+        try {
+            ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(
+                    GetObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(keyName)
+                            .build()
+            );
 
-            byte[] data = inputStream.readAllBytes();
-            System.out.println("Downloaded bytes: " + data.length); // for debug
-            return new ByteArrayResource(data);
+            // Read all bytes from S3 object
+            byte[] data = s3Object.readAllBytes();
+            s3Object.close(); // close the stream
 
+            // Wrap bytes in a Spring Resource
+            return new ByteArrayResource(data) {
+                @Override
+                public String getFilename() {
+                    // Return the key as filename (optional: strip prefixes if needed)
+                    return keyName.substring(keyName.indexOf("_CandidateResume_") + "_CandidateResume_".length());
+                }
+            };
         } catch (NoSuchKeyException e) {
-            System.out.println("File not found: " + keyName);
             return null;
         }
     }
+
 
 
     /**
