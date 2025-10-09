@@ -1,6 +1,7 @@
 package com.project.TalentFindr.util;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -30,19 +31,25 @@ public class FileDownloadUtil {
     /**
      * Get the file from S3 as a Spring Resource (for streaming/download endpoint)
      */
+
+
     public Resource getFileAsResource(String keyName) throws Exception {
-        try {
-            InputStream inputStream = s3Client.getObject(
-                    GetObjectRequest.builder()
-                            .bucket(bucketName)
-                            .key(keyName)
-                            .build()
-            );
-            return new InputStreamResource(inputStream);
+        try (InputStream inputStream = s3Client.getObject(
+                GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(keyName)
+                        .build())) {
+
+            byte[] data = inputStream.readAllBytes();
+            System.out.println("Downloaded bytes: " + data.length); // for debug
+            return new ByteArrayResource(data);
+
         } catch (NoSuchKeyException e) {
+            System.out.println("File not found: " + keyName);
             return null;
         }
     }
+
 
     /**
      * Generate a presigned URL for accessing a private S3 object (for frontend images)
