@@ -4,16 +4,14 @@ package com.project.TalentFindr.controller;
 import java.io.InputStream;
 
 import com.project.TalentFindr.Repository.UsersRepository;
-import com.project.TalentFindr.entity.Users;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,17 +35,8 @@ public class ImageRenderController {
 
 
     @GetMapping("/profile/photo")
-    public ResponseEntity<Resource> getProfilePhoto(@RequestParam("key") String imageName) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Users user = usersRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Couldn't find user"));
+    public ResponseEntity<Resource> getProfilePhoto(@RequestParam("key") String keyName) {
 
-        String keyName = "";
-        if ("Recruiter".equals(user.getUserTypeId().getUserTypeName())) {
-            keyName = user.getUserId() + "_RecruiterImage_" + imageName;
-        } else {
-            keyName = user.getUserId() + "_CandidateImage_" + imageName;
-        }
 
         try {
             // Get the InputStream from S3
@@ -61,7 +50,7 @@ public class ImageRenderController {
             // Wrap it as a Resource
             Resource resource = new InputStreamResource(inputStream);
 
-            String lowerCaseName = imageName.toLowerCase();
+            String lowerCaseName = keyName.toLowerCase();
             MediaType contentType;
             if (lowerCaseName.endsWith(".png")) {
                 contentType = MediaType.IMAGE_PNG;
