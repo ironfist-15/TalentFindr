@@ -149,6 +149,7 @@ public class CandidateProfileController {
         try {
 
             String key=userId+"_CandidateResume_"+fileName;
+            System.out.println("Downloading key: " + key);
             resource = fileDownloadUtil.getFileAsResource(key);
 
             if (resource == null || !resource.exists()) {
