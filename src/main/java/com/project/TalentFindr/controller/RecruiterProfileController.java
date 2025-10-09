@@ -34,6 +34,13 @@ public class RecruiterProfileController {
     public RecruiterProfileService recruiterProfileService;
     public FileUploadUtil fileUploadUtil;
 
+     public RecruiterProfileController(UsersRepository usersRepository,RecruiterProfileRepository recruiterProfileRepository,RecruiterProfileService recruiterProfileService,FileUploadUtil fileUploadUtil) {
+        this.usersRepository = usersRepository;
+        this.recruiterProfileRepository=recruiterProfileRepository;
+        this.recruiterProfileService=recruiterProfileService;
+        this.fileUploadUtil=fileUploadUtil;
+    }
+
 
     @GetMapping("/")
     public String recruiterProfile(Model model){
@@ -84,7 +91,9 @@ public class RecruiterProfileController {
             fileUploadUtil.saveFile(key, multipartFile);
         } catch (Exception ex) {
             ex.printStackTrace();
+            System.out.println("❌ Recruiter image upload failed for userId: " + savedUser.getUserAccountId());
         }
+
 
         return "redirect:/dashboard/";
     }

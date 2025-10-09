@@ -40,7 +40,12 @@ public class CandidateProfileController {
     public FileDownloadUtil fileDownloadUtil;
     public FileUploadUtil fileUploadUtil;
 
-
+    public CandidateProfileController(CandidateProfileService candidateProfileService, UsersRepository usersRepository, FileDownloadUtil fileDownloadUtil,FileUploadUtil fileUploadUtil) {
+        this.candidateProfileService = candidateProfileService;
+        this.usersRepository = usersRepository;
+        this.fileDownloadUtil = fileDownloadUtil;
+        this.fileUploadUtil=fileUploadUtil;
+    }
     @GetMapping("/")
     public String candidateprofile(Model model){
         JobSeekerProfile jobSeekerProfile=new JobSeekerProfile();
@@ -105,6 +110,7 @@ public class CandidateProfileController {
                 fileUploadUtil.saveFile(key, image);
             } catch (Exception ex) {
                 ex.printStackTrace();
+                System.out.println("❌ Image upload failed for userId: " + savedProfile.getUserAccountId());
                 throw new RuntimeException("Image upload failed");
             }
         }
@@ -114,19 +120,16 @@ public class CandidateProfileController {
 
              String key=savedProfile.getUserAccountId()+"_"+savedProfile.getResume();
             try {
-                fileUploadUtil.saveFile(key,pdf);
-            } catch (IOException ex) {
+                fileUploadUtil.saveFile(key, pdf);
+            } catch (Exception ex) {
                 ex.printStackTrace();
+                System.out.println("❌ Resume upload failed for userId: " + savedProfile.getUserAccountId());
                 throw new RuntimeException("Resume upload failed");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
         }
 
         return "redirect:/dashboard/";
     }
-
-
 
     @GetMapping("/{id}")
     public String candidateProfile(@PathVariable("id") int id,Model model){

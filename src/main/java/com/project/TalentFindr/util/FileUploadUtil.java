@@ -1,5 +1,6 @@
 package com.project.TalentFindr.util;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class FileUploadUtil {
     private final String bucketName;
 
     // Inject via constructor
-    public FileUploadUtil(S3Client s3Client, String bucketName) {
+    public FileUploadUtil(S3Client s3Client,@Value("${aws.s3.bucket-name}") String bucketName) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
     }
