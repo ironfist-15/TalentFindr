@@ -105,7 +105,7 @@ public class CandidateProfileController {
 
         // Save image to disk
         if (!image.isEmpty()) {
-            String key=savedProfile.getUserAccountId()+"_"+savedProfile.getProfilePhoto();
+            String key=savedProfile.getUserAccountId()+"_CandidateImage_"+savedProfile.getProfilePhoto();
             try {
                 fileUploadUtil.saveFile(key, image);
             } catch (Exception ex) {
@@ -118,7 +118,7 @@ public class CandidateProfileController {
         // Save resume to disk
         if (!pdf.isEmpty()) {
 
-             String key=savedProfile.getUserAccountId()+"_"+savedProfile.getResume();
+             String key=savedProfile.getUserAccountId()+"_CandidateResume_"+savedProfile.getResume();
             try {
                 fileUploadUtil.saveFile(key, pdf);
             } catch (Exception ex) {
@@ -148,7 +148,7 @@ public class CandidateProfileController {
 
         try {
 
-            String key=userId+"_"+fileName;
+            String key=userId+"_CandidateResume_"+fileName;
             resource = fileDownloadUtil.getFileAsResource(key);
 
             if (resource == null || !resource.exists()) {
