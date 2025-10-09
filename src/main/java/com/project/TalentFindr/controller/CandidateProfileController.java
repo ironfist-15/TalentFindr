@@ -152,7 +152,7 @@ public class CandidateProfileController {
             System.out.println("Downloading key: " + key);
             resource = fileDownloadUtil.getFileAsResource(key);
 
-            if (resource == null || !resource.exists()) {
+            if (resource == null) {
                 System.out.println("File not found or doesn't exist: " + fileName);
                 return ResponseEntity.status(404).body("Resume not found");
             }
