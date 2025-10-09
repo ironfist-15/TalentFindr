@@ -86,7 +86,7 @@ public class RecruiterProfileController {
 
 
 
-        String key=savedUser.getUserAccountId()+"_RecruiterPhoto_"+fileName;
+        String key=savedUser.getUserAccountId()+"_RecruiterImage_"+fileName;
         try {
             fileUploadUtil.saveFile(key, multipartFile);
         } catch (Exception ex) {

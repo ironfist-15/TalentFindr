@@ -82,8 +82,9 @@
             height="50px"
             width="50px"
             th:if="${user.profilePhotoUrl != null}"
-            th:src="@{${user.profilePhotoUrl}}"
+            th:src="@{/profile/photo(key=${user.profilePhotoUrl})}"
         />
+
 
 
         <label th:if="${user.firstName != null && user.lastName != null}"

@@ -154,11 +154,11 @@ public class CandidateProfileController {
             }
 
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)//the browser should treat it as a file download rather than trying to display it.
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"" + resource.getFilename() + "\"")
-                    .contentLength(resource.contentLength())
-                    .body(resource);
+                    .contentLength(resource.contentLength())  //the client knows how large the file is and can show a progress bar during download.
+                    .body(resource); // actual data
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -170,3 +170,13 @@ public class CandidateProfileController {
 
 
 }
+
+//What it does: Adds the Content-Disposition header.
+//
+//attachment tells the browser: “This is a downloadable file, not something to display inline.”
+//
+//filename="..." gives the name the browser should suggest when saving the file.
+//
+//resource.getFilename() fetches the filename from the Resource object (e.g., ByteArrayResource or InputStreamResource).
+//
+//Why: Without this, the browser may use a generic name like download or nothing at all
