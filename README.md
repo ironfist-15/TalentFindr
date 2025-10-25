@@ -1,3 +1,8 @@
+
+
+<img width="1077" height="424" alt="flow_chart" src="https://github.com/user-attachments/assets/b6e615de-8473-4c12-a850-d46c1f5d4a91" />
+
+
 TalentFindr is a job portal website that mimics LinkedIn . It provides role based acess for recruiters and job Seekers using Spring Security .
 
 Functionalities of Recruiters:-
