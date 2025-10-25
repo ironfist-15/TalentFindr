@@ -3,6 +3,11 @@
 <img width="1077" height="424" alt="flow_chart" src="https://github.com/user-attachments/assets/b6e615de-8473-4c12-a850-d46c1f5d4a91" />
 
 
+
+
+
+
+
 TalentFindr is a job portal website that mimics LinkedIn . It provides role based acess for recruiters and job Seekers using Spring Security .
 
 Functionalities of Recruiters:-
@@ -27,5 +32,7 @@ For the chat feature:
 Demo:-https://drive.google.com/drive/u/1/folders/1wOopcXLyX_xaZTgnxGphzguHGxTIIQbI
 
 The databse is hosted on aiven .
+
+The website is currently hosted on AWS on an EC2 instance and is attached to a S3 bucket for image/resume storage .
  
 Tech Stack:- SpringBoot, MySql, Bootstrap CSS ,Websocket/SockJs .
